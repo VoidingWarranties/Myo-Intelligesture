@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "AtomicEventListener.h"
+#include "Debounce.h"
 
 #include <myo/myo.hpp>
 
@@ -12,10 +13,15 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
+    Debounce debounce(Debounce::SUGGESTED_DEBOUNCE_DELAY,
+                      [](myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
+                        std::cout << "debounced pose: " << pose << std::endl;
+                      },
+                      [](myo::Myo* myo) {});
     AtomicEventListener listener(
-        [](myo::Myo* myo, uint64_t timestamp,
-           myo::Pose pose) { std::cout << "pose: " << pose << std::endl; },
-        [](myo::Myo* myo) {});
+        [&debounce](myo::Myo* myo, uint64_t timestamp,
+                    myo::Pose pose) { debounce.onPose(myo, timestamp, pose); },
+        [&debounce](myo::Myo* myo) { debounce.onPeriodic(myo); });
     hub.addListener(&listener);
 
     // Event loop.
