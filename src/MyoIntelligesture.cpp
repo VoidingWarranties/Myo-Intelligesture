@@ -12,14 +12,16 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    AtomicEventListener ael(
+    AtomicEventListener listener(
         [](myo::Myo* myo, uint64_t timestamp,
-           myo::Pose pose) { std::cout << "pose: " << pose << std::endl; });
-    hub.addListener(&ael);
+           myo::Pose pose) { std::cout << "pose: " << pose << std::endl; },
+        [](myo::Myo* myo) {});
+    hub.addListener(&listener);
 
     // Event loop.
     while (true) {
       hub.run(1000 / 20);
+      listener.onPeriodic(myo);
     }
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << std::endl;
