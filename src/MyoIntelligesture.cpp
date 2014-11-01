@@ -2,6 +2,7 @@
 
 #include "AtomicEventListener.h"
 #include "Debounce.h"
+#include "PoseGestures.h"
 
 #include <myo/myo.hpp>
 
@@ -13,11 +14,21 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    Debounce debounce(Debounce::SUGGESTED_DEBOUNCE_DELAY,
-                      [](myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
-                        std::cout << "debounced pose: " << pose << std::endl;
-                      },
-                      [](myo::Myo* myo) {});
+    PoseGestures pose_gests(500, 1000,
+                            [](myo::Myo* myo, uint64_t timestamp,
+                               myo::Pose pose, PoseGestures::Gesture gesture) {
+                              if (gesture != 2) {
+                                std::cout << pose << " clicked! " << gesture
+                                          << std::endl;
+                              }
+                            },
+                            [](myo::Myo* myo) {});
+    Debounce debounce(
+        Debounce::SUGGESTED_DEBOUNCE_DELAY,
+        [&pose_gests](myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
+          pose_gests.onPose(myo, timestamp, pose);
+        },
+        [&pose_gests](myo::Myo* myo) { pose_gests.onPeriodic(myo); });
     AtomicEventListener listener(
         [&debounce](myo::Myo* myo, uint64_t timestamp,
                     myo::Pose pose) { debounce.onPose(myo, timestamp, pose); },

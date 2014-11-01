@@ -37,7 +37,7 @@ class Debounce {
     onPeriodicCallback_(myo);
   }
 
-  static const int SUGGESTED_DEBOUNCE_DELAY = 200;
+  static const int SUGGESTED_DEBOUNCE_DELAY = 100;
 
  private:
   int debounce_delay_;
