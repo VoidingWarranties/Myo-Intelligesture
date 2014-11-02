@@ -24,9 +24,10 @@ class PoseGestures {
     if (passed_milliseconds <= max_click_time_) {
       if (last_pose_ != myo::Pose::rest) {
         onPoseGestureCallback_(myo, 0, last_pose_, PoseGestures::singleClick);
+        onPoseGestureCallback_(myo, 0, pose, PoseGestures::nothing);
       }
     } else {
-      onPoseGestureCallback_(myo, 0, last_pose_, PoseGestures::nothing);
+      onPoseGestureCallback_(myo, 0, pose, PoseGestures::nothing);
     }
     last_pose_ = pose;
     last_pose_time_ = current_time;
@@ -47,7 +48,7 @@ class PoseGestures {
   }
 
   static const int SUGGESTED_MAX_CLICK_TIME = 500;
-  static const int SUGGESTED_HOLD_TIME = 1000;
+  static const int SUGGESTED_HOLD_TIME = 500;
 
  private:
   int max_click_time_, hold_time_;
