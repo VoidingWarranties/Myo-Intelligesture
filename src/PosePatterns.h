@@ -48,7 +48,7 @@ class PosePatterns {
 
   void onPeriodic(myo::Myo* myo) { onPeriodicCallback_(myo); }
 
-  static const int SUGGESTED_MAX_DELAY = 750;
+  static const int SUGGESTED_MAX_DELAY = 1000;
 
  private:
   int max_delay_;

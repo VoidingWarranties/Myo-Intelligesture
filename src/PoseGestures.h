@@ -47,8 +47,8 @@ class PoseGestures {
     onPeriodicCallback_(myo);
   }
 
-  static const int SUGGESTED_MAX_CLICK_TIME = 500;
-  static const int SUGGESTED_HOLD_TIME = 500;
+  static const int SUGGESTED_MAX_CLICK_TIME = 750;
+  static const int SUGGESTED_HOLD_TIME = 750;
 
  private:
   int max_click_time_, hold_time_;
