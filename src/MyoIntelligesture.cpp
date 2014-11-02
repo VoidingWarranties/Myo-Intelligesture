@@ -15,13 +15,12 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    PosePatterns pose_patts(
-        PosePatterns::SUGGESTED_MAX_DELAY,
-        [](myo::Myo* myo, uint64_t timestamp, myo::Pose pose,
-           PosePatterns::Pattern pattern) {
-            std::cout << pattern << ": " << pose << std::endl;
-          },
-        [](myo::Myo* myo) {});
+    PosePatterns pose_patts(PosePatterns::SUGGESTED_MAX_DELAY,
+                            [](myo::Myo* myo, uint64_t timestamp,
+                               myo::Pose pose, PosePatterns::Pattern pattern) {
+                              std::cout << pattern << ": " << pose << std::endl;
+                            },
+                            [](myo::Myo* myo) {});
 
     PoseGestures pose_gests(
         PoseGestures::SUGGESTED_MAX_CLICK_TIME,
@@ -55,4 +54,5 @@ int main() {
     std::cerr << "Error: " << ex.what() << std::endl;
     return 1;
   }
+  return 0;
 }

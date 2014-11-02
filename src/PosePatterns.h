@@ -20,9 +20,10 @@ class PosePatterns {
               PoseGestures::Gesture gesture) {
     if (gesture == PoseGestures::singleClick) {
       std::clock_t current_time = std::clock();
-      int passed_milliseconds =
-          float(current_time - last_clicked_pose_time_) / CLOCKS_PER_SEC * 100000;
-      if (last_clicked_pose_gesture_ == PoseGestures::singleClick && passed_milliseconds <= max_delay_) {
+      int passed_milliseconds = float(current_time - last_clicked_pose_time_) /
+                                CLOCKS_PER_SEC * 100000;
+      if (last_clicked_pose_gesture_ == PoseGestures::singleClick &&
+          passed_milliseconds <= max_delay_) {
         onPosePatternCallback_(myo, 0, pose, doubleClick);
       } else {
         onPosePatternCallback_(myo, 0, pose, singleClick);
@@ -31,17 +32,17 @@ class PosePatterns {
       last_clicked_pose_gesture_ = gesture;
       last_clicked_pose_time_ = current_time;
     } else {
-        switch (gesture) {
-          case PoseGestures::singleClick:
-            onPosePatternCallback_(myo, 0, pose, singleClick);
-            break;
-          case PoseGestures::hold:
-            onPosePatternCallback_(myo, 0, pose, hold);
-            break;
-          case PoseGestures::nothing:
-            onPosePatternCallback_(myo, 0, pose, nothing);
-            break;
-        }
+      switch (gesture) {
+        case PoseGestures::singleClick:
+          onPosePatternCallback_(myo, 0, pose, singleClick);
+          break;
+        case PoseGestures::hold:
+          onPosePatternCallback_(myo, 0, pose, hold);
+          break;
+        case PoseGestures::nothing:
+          onPosePatternCallback_(myo, 0, pose, nothing);
+          break;
+      }
     }
   }
 
