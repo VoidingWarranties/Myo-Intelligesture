@@ -13,8 +13,10 @@ class DeviceListenerWrapper : public myo::DeviceListener {
   virtual void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
     onPose(myo, pose);
   }
-  virtual void onPose(myo::Myo* myo, myo::Pose pose) = 0;
+  virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
+                                 const myo::Quaternion<float>& quat) {}
 
+  virtual void onPose(myo::Myo* myo, myo::Pose pose) = 0;
   virtual void onPeriodic(myo::Myo* myo) {}
 };
 

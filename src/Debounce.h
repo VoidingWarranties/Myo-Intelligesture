@@ -33,7 +33,10 @@ class Debounce : public BaseClass {
     last_pose_time_ = std::clock();
   }
 
-  virtual void onPose(myo::Myo* myo, Pose pose) {}
+  virtual void onPose(myo::Myo* myo, Pose pose) {
+    std::cout << pose << std::endl;
+    if (pose == Pose::thumbToPinky) this->setRollMid();
+  }
 
   virtual void onPeriodic(myo::Myo* myo) {
     BaseClass::onPeriodic(myo);
