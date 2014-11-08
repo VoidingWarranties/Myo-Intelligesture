@@ -1,10 +1,9 @@
 #include <iostream>
+#include <myo/myo.hpp>
 
 #include "DeviceListenerWrapper.h"
-#include "Debounce.h"
 #include "OrientationPoses.h"
-
-#include <myo/myo.hpp>
+#include "Debounce.h"
 
 int main() {
   try {
@@ -14,7 +13,7 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    Debounce<OrientationPoses<>, OrientationPoses<>::Pose> listener;
+    Debounce<> listener;
 
     hub.addListener(&listener);
 

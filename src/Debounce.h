@@ -10,7 +10,9 @@
 #include <ctime>
 #include <myo/myo.hpp>
 
-template <class BaseClass, class PoseClass>
+#include "OrientationPoses.h"
+
+template <class BaseClass = OrientationPoses<>, class PoseClass = OrientationPoses<>::Pose>
 class Debounce : public BaseClass {
  public:
   class Pose : public PoseClass {
