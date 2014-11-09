@@ -37,7 +37,6 @@ class Debounce : public BaseClass {
 
   virtual void onPose(myo::Myo* myo, Pose pose) {
     std::cout << pose << std::endl;
-    if (pose == Pose::thumbToPinky) this->setRollMid();
   }
 
   virtual void onPeriodic(myo::Myo* myo) {

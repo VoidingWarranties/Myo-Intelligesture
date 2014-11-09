@@ -4,6 +4,7 @@
 #include "DeviceListenerWrapper.h"
 #include "OrientationPoses.h"
 #include "Debounce.h"
+#include "Orientation.h"
 
 int main() {
   try {

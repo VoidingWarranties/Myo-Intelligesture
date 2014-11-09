@@ -7,7 +7,11 @@
 #ifndef MYO_INTELLIGESTURE_ORIENTATIONPOSES_H_
 #define MYO_INTELLIGESTURE_ORIENTATIONPOSES_H_
 
-template <class BaseClass = DeviceListenerWrapper, class PoseClass = myo::Pose>
+#include <iostream>
+#include <myo/myo.hpp>
+#include "Orientation.h"
+
+template <class BaseClass = Orientation<>, class PoseClass = myo::Pose>
 class OrientationPoses : public BaseClass {
  public:
   class Pose : public PoseClass {
@@ -55,9 +59,6 @@ class OrientationPoses : public BaseClass {
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
                                  const myo::Quaternion<float>& quat) {
     BaseClass::onOrientationData(myo, timestamp, quat);
-
-    roll_ = atan2(2.0f * (quat.w() * quat.x() + quat.y() * quat.z()),
-                  1.0f - 2.0f * (quat.x() * quat.x() + quat.y() * quat.y()));
   }
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
@@ -65,21 +66,16 @@ class OrientationPoses : public BaseClass {
   }
 
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
+    if (pose == Pose::thumbToPinky) this->calibrateOrientation();
     if (pose == PoseClass::waveIn || pose == PoseClass::waveOut) {
-      float roll_diff = roll_ - roll_mid_;
-      if (roll_diff > M_PI) {
-        roll_diff -= (2 * M_PI);
-      }
-      if (roll_diff < -M_PI) {
-        roll_diff += (2 * M_PI);
-      }
-
-      if (roll_diff < -0.2) {
-        if (pose == PoseClass::waveIn) {
-          onPose(myo, Pose::waveDown);
-        } else {
-          onPose(myo, Pose::waveUp);
-        }
+      typedef Orientation<>::Wrist Wrist;
+      Wrist orient = this->getWristOrientation();
+      if ((orient == Wrist::palmUp && pose == PoseClass::waveIn) ||
+          (orient == Wrist::palmDown && pose == PoseClass::waveOut)) {
+        onPose(myo, Pose::waveUp);
+      } else if ((orient == Wrist::palmUp && pose == PoseClass::waveOut) ||
+                 (orient == Wrist::palmDown && pose == PoseClass::waveIn)) {
+        onPose(myo, Pose::waveDown);
       } else {
         onPose(myo, Pose(pose));
       }
