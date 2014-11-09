@@ -61,10 +61,6 @@ class OrientationPoses : public BaseClass {
     BaseClass::onOrientationData(myo, timestamp, quat);
   }
 
-  virtual void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
-    BaseClass::onPose(myo, timestamp, pose);
-  }
-
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
     if (pose == Pose::thumbToPinky) this->calibrateOrientation();
     if (pose == PoseClass::waveIn || pose == PoseClass::waveOut) {

@@ -26,10 +26,6 @@ class Debounce : public BaseClass {
         previous_debounced_pose_(PoseClass::rest),
         last_pose_time_(std::clock()) {}
 
-  virtual void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
-    BaseClass::onPose(myo, timestamp, pose);
-  }
-
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
     last_pose_ = pose;
     last_pose_time_ = std::clock();
