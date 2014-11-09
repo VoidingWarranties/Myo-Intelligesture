@@ -82,8 +82,6 @@ class OrientationPoses : public BaseClass {
 
   virtual void onPose(myo::Myo* myo, Pose pose) {}
 
-  virtual void onPeriodic(myo::Myo* myo) { BaseClass::onPeriodic(myo); }
-
   void setRollMid() { roll_mid_ = roll_; }
 
  private:
