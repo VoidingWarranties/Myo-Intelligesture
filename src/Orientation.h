@@ -1,3 +1,7 @@
+/* Provides an easy interface for determining the basic orientation of the
+ * user's arm and wrist.
+ */
+
 #ifndef MYO_INTELLIGESTURE_ORIENTATION_H_
 #define MYO_INTELLIGESTURE_ORIENTATION_H_
 

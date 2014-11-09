@@ -1,7 +1,7 @@
 /* Various utility functions to use with orientation data. The math for
  * quaternion to roll/pitch/yaw was taken from the Myo SDK sample, but all of
  * the math in this namespace should probably be double checked.
-*/
+ */
 
 #ifndef MYO_INTELLIGESTURE_ORIENTATIONUTILITY_H_
 #define MYO_INTELLIGESTURE_ORIENTATIONUTILITY_H_
