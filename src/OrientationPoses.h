@@ -19,6 +19,7 @@ class OrientationPoses : public BaseClass {
     enum Type { BASE_POSE, waveUp, waveDown };
 
     Pose(PoseClass pose) : PoseClass(pose), pose_(BASE_POSE) {}
+    Pose(typename PoseClass::Type t) : PoseClass(t), pose_(BASE_POSE) {}
     Pose(Type pose) : pose_(pose) {}
 
     std::string toString() const {

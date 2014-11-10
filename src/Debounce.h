@@ -17,6 +17,7 @@ class Debounce : public BaseClass {
   class Pose : public PoseClass {
    public:
     Pose(PoseClass pose) : PoseClass(pose) {}
+    Pose(typename PoseClass::Type t) : PoseClass(t) {}
   };
 
   Debounce(int debounce_delay = 10)
