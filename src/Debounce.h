@@ -7,10 +7,9 @@
 #ifndef MYO_INTELLIGESTURE_DEBOUNCE_H_
 #define MYO_INTELLIGESTURE_DEBOUNCE_H_
 
-#include <ctime>
 #include <myo/myo.hpp>
-
 #include "OrientationPoses.h"
+#include "../../Basic-Timer/BasicTimer.h"
 
 template <class BaseClass = OrientationPoses<>, class PoseClass = OrientationPoses<>::Pose>
 class Debounce : public BaseClass {
@@ -23,12 +22,14 @@ class Debounce : public BaseClass {
   Debounce(int debounce_delay = 10)
       : debounce_delay_(debounce_delay),
         last_pose_(PoseClass::rest),
-        previous_debounced_pose_(PoseClass::rest),
-        last_pose_time_(std::clock()) {}
+        previous_debounced_pose_(PoseClass::rest)
+  {
+    last_pose_time_.tick();
+  }
 
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
     last_pose_ = pose;
-    last_pose_time_ = std::clock();
+    last_pose_time_.tick();
   }
 
   virtual void onPose(myo::Myo* myo, Pose pose) {
@@ -38,16 +39,11 @@ class Debounce : public BaseClass {
   virtual void onPeriodic(myo::Myo* myo) {
     BaseClass::onPeriodic(myo);
 
-    std::clock_t current_time = std::clock();
-    // You would think the clock time / CLOCKS_PER_SEC would give you seconds
-    // but I found you need to multiply it by 100 to get seconds. Therefore you
-    // need to multiply it by 100000 to get milliseconds. Why is this so?
-    int passed_milliseconds =
-        float(current_time - last_pose_time_) / CLOCKS_PER_SEC * 100000;
+    int passed_milliseconds = last_pose_time_.millisecondsSinceTick();
     if (passed_milliseconds > debounce_delay_ &&
         last_pose_ != previous_debounced_pose_) {
       previous_debounced_pose_ = last_pose_;
-      last_pose_time_ = current_time;
+      last_pose_time_.tick();
       onPose(myo, Pose(last_pose_));
     }
   }
@@ -55,7 +51,7 @@ class Debounce : public BaseClass {
  private:
   int debounce_delay_;
   PoseClass last_pose_, previous_debounced_pose_;
-  std::clock_t last_pose_time_;
+  BasicTimer last_pose_time_;
 };
 
 #endif
