@@ -33,9 +33,7 @@ class Debounce : public BaseClass {
     last_pose_time_.tick();
   }
 
-  virtual void onPose(myo::Myo* myo, Pose pose) {
-    std::cout << pose << std::endl;
-  }
+  virtual void onPose(myo::Myo* myo, Pose pose) {}
 
   virtual void onPeriodic(myo::Myo* myo) {
     BaseClass::onPeriodic(myo);

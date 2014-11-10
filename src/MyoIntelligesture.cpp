@@ -5,6 +5,7 @@
 #include "OrientationPoses.h"
 #include "Debounce.h"
 #include "Orientation.h"
+#include "PoseGestures.h"
 
 int main() {
   try {
@@ -14,7 +15,7 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    Debounce<> listener;
+    PoseGestures<> listener;
 
     hub.addListener(&listener);
 
