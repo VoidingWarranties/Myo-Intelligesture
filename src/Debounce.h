@@ -39,7 +39,7 @@ class Debounce : public BaseClass {
   virtual void onPeriodic(myo::Myo* myo) {
     BaseClass::onPeriodic(myo);
 
-    int passed_milliseconds = last_pose_time_.millisecondsSinceTick();
+    uint64_t passed_milliseconds = last_pose_time_.millisecondsSinceTick();
     if (passed_milliseconds > debounce_delay_ &&
         last_pose_ != previous_debounced_pose_) {
       previous_debounced_pose_ = last_pose_;
