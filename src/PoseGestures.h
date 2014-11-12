@@ -6,6 +6,7 @@
 #define MYO_INTELLIGESTURE_POSEGESTURES_H_
 
 #include <string>
+#include <boost/circular_buffer.hpp>
 #include <myo/myo.hpp>
 #include "../../Basic-Timer/BasicTimer.h"
 
@@ -16,7 +17,7 @@ class PoseGestures : public BaseClass {
    public:
     class Gesture {
      public:
-      enum Type { none, singleClick, hold };
+      enum Type { none, singleClick, doubleClick, hold };
 
       Gesture(Type t = none) : gesture_(t) {}
 
@@ -26,6 +27,8 @@ class PoseGestures : public BaseClass {
             return "none";
           case singleClick:
             return "singleClick";
+          case doubleClick:
+            return "doubleClick";
           case hold:
             return "hold";
           default:
@@ -74,17 +77,41 @@ class PoseGestures : public BaseClass {
   };
 
   PoseGestures(int click_max_hold_min = 1000)
-      : click_max_hold_min_(click_max_hold_min) {
-    current_pose_time_.tick();
+      : click_max_hold_min_(click_max_hold_min),
+        pose_buffer_(3),
+        pose_time_buffer_(3) {
+    for (size_t i = 0; i < 3; ++i) {
+      pose_buffer_.push_front(Pose(PoseClass(Pose::rest), Pose::Gesture::hold));
+      pose_time_buffer_.push_front(BasicTimer());
+      pose_time_buffer_.front().tick();
+    }
   }
 
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
-    if (current_pose_time_.millisecondsSinceTick() <= click_max_hold_min_) {
-      current_pose_ = Pose(current_pose_.pose(), Pose::Gesture::singleClick);
-      onPose(myo, current_pose_);
+    if (pose_time_buffer_.front().millisecondsSinceTick() <=
+        click_max_hold_min_) {
+      if (pose_buffer_.front().pose() == pose_buffer_.back().pose() &&
+          millisecondsBetweenTicks(pose_time_buffer_[2],
+                                   pose_time_buffer_[1]) <=
+              click_max_hold_min_ &&
+          millisecondsBetweenTicks(pose_time_buffer_[1],
+                                   pose_time_buffer_[0]) <=
+              click_max_hold_min_) {
+        pose_buffer_.front() =
+            Pose(pose_buffer_.front().pose(), Pose::Gesture::doubleClick);
+        onPose(myo, pose_buffer_.front());
+      } else {
+        pose_buffer_.front() =
+            Pose(pose_buffer_.front().pose(), Pose::Gesture::singleClick);
+        onPose(myo, pose_buffer_.front());
+      }
+    } else {
+      pose_buffer_.front() = Pose(pose, Pose::Gesture::none);
+      onPose(myo, pose_buffer_.front());
     }
-    current_pose_ = Pose(pose, Pose::Gesture::none);
-    current_pose_time_.tick();
+    pose_time_buffer_.push_front(BasicTimer());
+    pose_time_buffer_.front().tick();
+    pose_buffer_.push_front(Pose(pose, Pose::Gesture::none));
   }
 
   virtual void onPose(myo::Myo* myo, Pose pose) {
@@ -94,17 +121,19 @@ class PoseGestures : public BaseClass {
   virtual void onPeriodic(myo::Myo* myo) {
     BaseClass::onPeriodic(myo);
 
-    if (current_pose_.gesture() != Pose::Gesture::hold &&
-        current_pose_time_.millisecondsSinceTick() > click_max_hold_min_) {
-      current_pose_ = Pose(current_pose_.pose(), Pose::Gesture::hold);
-      onPose(myo, current_pose_);
+    if (pose_buffer_.front().gesture() != Pose::Gesture::hold &&
+        pose_time_buffer_.front().millisecondsSinceTick() >
+            click_max_hold_min_) {
+      pose_buffer_.front() =
+          Pose(pose_buffer_.front().pose(), Pose::Gesture::hold);
+      onPose(myo, pose_buffer_.front());
     }
   }
 
  private:
   int click_max_hold_min_;
-  Pose current_pose_;
-  BasicTimer current_pose_time_;
+  boost::circular_buffer<Pose> pose_buffer_;
+  boost::circular_buffer<BasicTimer> pose_time_buffer_;
 };
 
 #endif
