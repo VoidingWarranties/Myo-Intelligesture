@@ -114,9 +114,7 @@ class PoseGestures : public BaseClass {
     pose_buffer_.push_front(Pose(pose, Pose::Gesture::none));
   }
 
-  virtual void onPose(myo::Myo* myo, Pose pose) {
-    std::cout << pose << std::endl;
-  }
+  virtual void onPose(myo::Myo* myo, Pose pose) {}
 
   virtual void onPeriodic(myo::Myo* myo) {
     BaseClass::onPeriodic(myo);
