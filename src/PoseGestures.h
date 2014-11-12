@@ -8,6 +8,7 @@
 #include <string>
 #include <boost/circular_buffer.hpp>
 #include <myo/myo.hpp>
+#include "Debounce.h"
 #include "../../Basic-Timer/BasicTimer.h"
 
 template <class BaseClass = Debounce<>, class PoseClass = Debounce<>::Pose>

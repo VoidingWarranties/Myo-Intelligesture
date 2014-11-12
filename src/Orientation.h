@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <myo/myo.hpp>
+#include "DeviceListenerWrapper.h"
 #include "OrientationUtility.h"
 
 template <class BaseClass = DeviceListenerWrapper>
