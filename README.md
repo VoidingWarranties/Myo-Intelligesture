@@ -17,3 +17,7 @@ The library would allow you to provide a callback function for when an action su
 The library will support pattern recognition of poses too (i.e. have a specific pattern of short / long thumb-to-pinky poses which unlocks the device).
 
 Implement a short timeout duration after an accepted pose to prevent unwanted pose recognitions. This will specifically help when opening your hand after the fist pose as it will sometimes be incorrectly recognized as a finger spread pose.
+
+Dependencies
+------------
+[Boost](http://www.boost.org/)

@@ -1,60 +1,137 @@
+/* PoseGestures adds gesture detection for poses. Gestures include clicking,
+ * double clicking, and holding the pose.
+ */
+
+#ifndef MYO_INTELLIGESTURE_POSEGESTURES_H_
+#define MYO_INTELLIGESTURE_POSEGESTURES_H_
+
+#include <string>
+#include <boost/circular_buffer.hpp>
 #include <myo/myo.hpp>
+#include "../../Basic-Timer/BasicTimer.h"
 
-class PoseGestures {
+template <class BaseClass = Debounce<>, class PoseClass = Debounce<>::Pose>
+class PoseGestures : public BaseClass {
  public:
-  enum Gesture { singleClick, hold, nothing };
+  class Pose : public PoseClass {
+   public:
+    class Gesture {
+     public:
+      enum Type { none, singleClick, doubleClick, hold };
 
-  PoseGestures(
-      int max_click_time, int hold_time,
-      const std::function<void(myo::Myo *, uint64_t, myo::Pose,
-                               PoseGestures::Gesture)> &onPoseGestureCallback,
-      const std::function<void(myo::Myo *)> &onPeriodicCallback)
-      : max_click_time_(max_click_time),
-        hold_time_(hold_time),
-        onPoseGestureCallback_(onPoseGestureCallback),
-        onPeriodicCallback_(onPeriodicCallback),
-        last_pose_(myo::Pose::rest),
-        last_held_pose_(myo::Pose::rest),
-        last_pose_time_(0) {}
+      Gesture(Type t = none) : gesture_(t) {}
 
-  void onPose(myo::Myo *myo, uint64_t timestamp, myo::Pose pose) {
-    std::clock_t current_time = std::clock();
-    int passed_milliseconds =
-        float(current_time - last_pose_time_) / CLOCKS_PER_SEC * 100000;
-    if (passed_milliseconds <= max_click_time_) {
-      if (last_pose_ != myo::Pose::rest) {
-        onPoseGestureCallback_(myo, 0, last_pose_, PoseGestures::singleClick);
-        onPoseGestureCallback_(myo, 0, pose, PoseGestures::nothing);
+      std::string toString() const {
+        switch (gesture_) {
+          case none:
+            return "none";
+          case singleClick:
+            return "singleClick";
+          case doubleClick:
+            return "doubleClick";
+          case hold:
+            return "hold";
+          default:
+            return "unknown";
+        }
+      }
+
+      friend std::ostream& operator<<(std::ostream& out, const Gesture& gest) {
+        return out << gest.toString();
+      }
+      friend bool operator==(const Gesture& gest, Type t) {
+        return gest.gesture_ == t;
+      }
+      friend bool operator==(Type t, const Gesture& gest) {
+        return gest.gesture_ == t;
+      }
+      friend bool operator!=(const Gesture& gest, Type t) {
+        return gest.gesture_ != t;
+      }
+      friend bool operator!=(Type t, const Gesture& gest) {
+        return gest.gesture_ != t;
+      }
+
+     private:
+      Type gesture_;
+    };
+
+    Pose(PoseClass pose = PoseClass(PoseClass::rest),
+         Gesture gest = Gesture::hold)
+        : PoseClass(pose), pose_(pose), gesture_(gest) {}
+
+    PoseClass pose() const { return pose_; }
+    Gesture gesture() const { return gesture_; }
+
+    std::string toString() const {
+      return pose_.toString() + ": " + gesture_.toString();
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const Pose& pose) {
+      return out << pose.toString();
+    }
+
+   private:
+    PoseClass pose_;
+    Gesture gesture_;
+  };
+
+  PoseGestures(int click_max_hold_min = 1000)
+      : click_max_hold_min_(click_max_hold_min),
+        pose_buffer_(3),
+        pose_time_buffer_(3) {
+    for (size_t i = 0; i < 3; ++i) {
+      pose_buffer_.push_front(Pose(PoseClass(Pose::rest), Pose::Gesture::hold));
+      pose_time_buffer_.push_front(BasicTimer());
+      pose_time_buffer_.front().tick();
+    }
+  }
+
+  virtual void onPose(myo::Myo* myo, PoseClass pose) {
+    if (pose_time_buffer_.front().millisecondsSinceTick() <=
+        click_max_hold_min_) {
+      if (pose_buffer_.front().pose() == pose_buffer_.back().pose() &&
+          millisecondsBetweenTicks(pose_time_buffer_[2],
+                                   pose_time_buffer_[1]) <=
+              click_max_hold_min_ &&
+          millisecondsBetweenTicks(pose_time_buffer_[1],
+                                   pose_time_buffer_[0]) <=
+              click_max_hold_min_) {
+        pose_buffer_.front() =
+            Pose(pose_buffer_.front().pose(), Pose::Gesture::doubleClick);
+        onPose(myo, pose_buffer_.front());
+      } else {
+        pose_buffer_.front() =
+            Pose(pose_buffer_.front().pose(), Pose::Gesture::singleClick);
+        onPose(myo, pose_buffer_.front());
       }
     } else {
-      onPoseGestureCallback_(myo, 0, pose, PoseGestures::nothing);
+      pose_buffer_.front() = Pose(pose, Pose::Gesture::none);
+      onPose(myo, pose_buffer_.front());
     }
-    last_pose_ = pose;
-    last_pose_time_ = current_time;
+    pose_time_buffer_.push_front(BasicTimer());
+    pose_time_buffer_.front().tick();
+    pose_buffer_.push_front(Pose(pose, Pose::Gesture::none));
   }
 
-  void onPeriodic(myo::Myo *myo) {
-    std::clock_t current_time = std::clock();
-    int passed_milliseconds =
-        float(current_time - last_pose_time_) / CLOCKS_PER_SEC * 100000;
-    if (last_pose_ != last_held_pose_ && passed_milliseconds >= hold_time_) {
-      last_held_pose_ = last_pose_;
-      if (last_pose_ != myo::Pose::rest) {
-        onPoseGestureCallback_(myo, 0, last_pose_, PoseGestures::hold);
-      }
+  virtual void onPose(myo::Myo* myo, Pose pose) {}
+
+  virtual void onPeriodic(myo::Myo* myo) {
+    BaseClass::onPeriodic(myo);
+
+    if (pose_buffer_.front().gesture() != Pose::Gesture::hold &&
+        pose_time_buffer_.front().millisecondsSinceTick() >
+            click_max_hold_min_) {
+      pose_buffer_.front() =
+          Pose(pose_buffer_.front().pose(), Pose::Gesture::hold);
+      onPose(myo, pose_buffer_.front());
     }
-
-    onPeriodicCallback_(myo);
   }
-
-  static const int SUGGESTED_MAX_CLICK_TIME = 750;
-  static const int SUGGESTED_HOLD_TIME = 750;
 
  private:
-  int max_click_time_, hold_time_;
-  std::function<void(myo::Myo *, uint64_t, myo::Pose, PoseGestures::Gesture)>
-      onPoseGestureCallback_;
-  std::function<void(myo::Myo *)> onPeriodicCallback_;
-  myo::Pose last_pose_, last_held_pose_;
-  std::clock_t last_pose_time_;
+  int click_max_hold_min_;
+  boost::circular_buffer<Pose> pose_buffer_;
+  boost::circular_buffer<BasicTimer> pose_time_buffer_;
 };
+
+#endif

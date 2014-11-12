@@ -1,11 +1,12 @@
 #include <iostream>
-
-#include "AtomicEventListener.h"
-#include "Debounce.h"
-#include "PoseGestures.h"
-#include "PosePatterns.h"
-
 #include <myo/myo.hpp>
+
+#include "DeviceListenerWrapper.h"
+#include "OrientationPoses.h"
+#include "Debounce.h"
+#include "Orientation.h"
+#include "PoseGestures.h"
+#include "ExampleClass.h"
 
 int main() {
   try {
@@ -15,33 +16,7 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    PosePatterns pose_patts(PosePatterns::SUGGESTED_MAX_DELAY,
-                            [](myo::Myo* myo, uint64_t timestamp,
-                               myo::Pose pose, PosePatterns::Pattern pattern) {
-                              std::cout << pattern << ": " << pose << std::endl;
-                            },
-                            [](myo::Myo* myo) {});
-
-    PoseGestures pose_gests(
-        PoseGestures::SUGGESTED_MAX_CLICK_TIME,
-        PoseGestures::SUGGESTED_HOLD_TIME,
-        [&pose_patts](myo::Myo* myo, uint64_t timestamp, myo::Pose pose,
-                      PoseGestures::Gesture gesture) {
-          pose_patts.onPose(myo, timestamp, pose, gesture);
-        },
-        [&pose_patts](myo::Myo* myo) { pose_patts.onPeriodic(myo); });
-
-    Debounce debounce(
-        Debounce::SUGGESTED_DEBOUNCE_DELAY,
-        [&pose_gests](myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
-          pose_gests.onPose(myo, timestamp, pose);
-        },
-        [&pose_gests](myo::Myo* myo) { pose_gests.onPeriodic(myo); });
-
-    AtomicEventListener listener(
-        [&debounce](myo::Myo* myo, uint64_t timestamp,
-                    myo::Pose pose) { debounce.onPose(myo, timestamp, pose); },
-        [&debounce](myo::Myo* myo) { debounce.onPeriodic(myo); });
+    ExampleClass<> listener;
 
     hub.addListener(&listener);
 
