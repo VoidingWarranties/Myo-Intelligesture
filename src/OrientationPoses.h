@@ -63,7 +63,6 @@ class OrientationPoses : public BaseClass {
   }
 
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
-    if (pose == Pose::thumbToPinky) this->calibrateOrientation();
     if (pose == PoseClass::waveIn || pose == PoseClass::waveOut) {
       typedef Orientation<>::Wrist Wrist;
       Wrist orient = this->getWristOrientation();
