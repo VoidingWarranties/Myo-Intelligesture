@@ -6,7 +6,7 @@
 #define MYO_INTELLIGESTURE_POSEGESTURES_H_
 
 #include <string>
-#include <boost/circular_buffer.hpp>
+#include <unordered_map>
 #include <myo/myo.hpp>
 #include "Debounce.h"
 #include "../../Basic-Timer/BasicTimer.h"
@@ -79,40 +79,39 @@ class PoseGestures : public BaseClass {
 
   PoseGestures(int click_max_hold_min = 1000)
       : click_max_hold_min_(click_max_hold_min),
-        pose_buffer_(3),
-        pose_time_buffer_(3) {
-    for (size_t i = 0; i < 3; ++i) {
-      pose_buffer_.push_front(Pose(PoseClass(Pose::rest), Pose::Gesture::hold));
-      pose_time_buffer_.push_front(BasicTimer());
-      pose_time_buffer_.front().tick();
-    }
-  }
+        last_pose_(PoseClass(PoseClass::rest), Pose::Gesture::none) {}
 
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
-    if (pose_time_buffer_.front().millisecondsSinceTick() <=
-        click_max_hold_min_) {
-      if (pose_buffer_.front().pose() == pose_buffer_.back().pose() &&
-          millisecondsBetweenTicks(pose_time_buffer_[2],
-                                   pose_time_buffer_[1]) <=
-              click_max_hold_min_ &&
-          millisecondsBetweenTicks(pose_time_buffer_[1],
-                                   pose_time_buffer_[0]) <=
+    BasicTimer now;
+    now.tick();
+
+    Pose current_pose;
+    Pose last_pose_gesture_none = Pose(last_pose_.pose(), Pose::Gesture::none);
+    Pose last_pose_gesture_singleClick =
+        Pose(last_pose_.pose(), Pose::Gesture::singleClick);
+
+    if (last_pose_times_.count(last_pose_gesture_none.toString()) > 0 &&
+        last_pose_times_[last_pose_gesture_none.toString()]
+                .millisecondsSinceTick() <= click_max_hold_min_) {
+      if (last_pose_times_.count(last_pose_gesture_singleClick.toString()) >
+              0 &&
+          millisecondsBetweenTicks(
+              last_pose_times_[last_pose_gesture_singleClick.toString()],
+              last_pose_times_[last_pose_gesture_none.toString()]) <=
               click_max_hold_min_) {
-        pose_buffer_.front() =
-            Pose(pose_buffer_.front().pose(), Pose::Gesture::doubleClick);
-        onPose(myo, pose_buffer_.front());
+        // Double click. Suppresses the current single click.
+        current_pose = Pose(pose, Pose::Gesture::doubleClick);
       } else {
-        pose_buffer_.front() =
-            Pose(pose_buffer_.front().pose(), Pose::Gesture::singleClick);
-        onPose(myo, pose_buffer_.front());
+        // Single click.
+        current_pose = Pose(pose, Pose::Gesture::singleClick);
       }
     } else {
-      pose_buffer_.front() = Pose(pose, Pose::Gesture::none);
-      onPose(myo, pose_buffer_.front());
+      current_pose = Pose(pose, Pose::Gesture::none);
     }
-    pose_time_buffer_.push_front(BasicTimer());
-    pose_time_buffer_.front().tick();
-    pose_buffer_.push_front(Pose(pose, Pose::Gesture::none));
+
+    last_pose_times_[current_pose.toString()] = now;
+    last_pose_ = Pose(pose, Pose::Gesture::none);
+    onPose(myo, current_pose);
   }
 
   virtual void onPose(myo::Myo* myo, Pose pose) {}
@@ -120,19 +119,22 @@ class PoseGestures : public BaseClass {
   virtual void onPeriodic(myo::Myo* myo) {
     BaseClass::onPeriodic(myo);
 
-    if (pose_buffer_.front().gesture() != Pose::Gesture::hold &&
-        pose_time_buffer_.front().millisecondsSinceTick() >
+    if (last_pose_.gesture() != Pose::Gesture::hold &&
+        last_pose_times_.count(
+            Pose(last_pose_.pose(), Pose::Gesture::none).toString()) > 0 &&
+        last_pose_times_[Pose(last_pose_.pose(), Pose::Gesture::none)
+                             .toString()].millisecondsSinceTick() >
             click_max_hold_min_) {
-      pose_buffer_.front() =
-          Pose(pose_buffer_.front().pose(), Pose::Gesture::hold);
-      onPose(myo, pose_buffer_.front());
+      last_pose_ = Pose(last_pose_.pose(), Pose::Gesture::hold);
+      onPose(myo, last_pose_);
     }
   }
 
  private:
   int click_max_hold_min_;
-  boost::circular_buffer<Pose> pose_buffer_;
-  boost::circular_buffer<BasicTimer> pose_time_buffer_;
+
+  Pose last_pose_;
+  std::unordered_map<std::string, BasicTimer> last_pose_times_;
 };
 
 #endif
