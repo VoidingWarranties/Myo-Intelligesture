@@ -100,18 +100,20 @@ class PoseGestures : public BaseClass {
               last_pose_times_[last_pose_gesture_none.toString()]) <=
               click_max_hold_min_) {
         // Double click. Suppresses the current single click.
-        current_pose = Pose(pose, Pose::Gesture::doubleClick);
+        current_pose = Pose(last_pose_.pose(), Pose::Gesture::doubleClick);
       } else {
         // Single click.
-        current_pose = Pose(pose, Pose::Gesture::singleClick);
+        current_pose = Pose(last_pose_.pose(), Pose::Gesture::singleClick);
       }
+      last_pose_times_[current_pose.toString()] = now;
+      onPose(myo, current_pose);
     } else {
       current_pose = Pose(pose, Pose::Gesture::none);
     }
 
-    last_pose_times_[current_pose.toString()] = now;
     last_pose_ = Pose(pose, Pose::Gesture::none);
-    onPose(myo, current_pose);
+    last_pose_times_[last_pose_.toString()] = now;
+    onPose(myo, last_pose_);
   }
 
   virtual void onPose(myo::Myo* myo, Pose pose) {}
