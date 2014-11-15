@@ -116,7 +116,7 @@ class PoseGestures : public BaseClass {
     onPose(myo, last_pose_);
   }
 
-  virtual void onPose(myo::Myo* myo, Pose pose) {}
+  virtual void onPose(myo::Myo* myo, Pose pose) = 0;
 
   virtual void onPeriodic(myo::Myo* myo) {
     BaseClass::onPeriodic(myo);

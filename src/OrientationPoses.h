@@ -80,7 +80,7 @@ class OrientationPoses : public BaseClass {
     }
   }
 
-  virtual void onPose(myo::Myo* myo, Pose pose) {}
+  virtual void onPose(myo::Myo* myo, Pose pose) = 0;
 
   void setRollMid() { roll_mid_ = roll_; }
 
