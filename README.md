@@ -4,20 +4,69 @@ Myo Intelligesture
 A library for Myo which allows more complex gestures
 ----------------------------------------------------
 
-For example the library could enable you to sense when the user performs the thumb-to-pinky gesture twice in a row (i.e. double clicking) which could perform a different action than a single thumb-to-pinky gesture. The sensitivity of this could be controlled similar to how OS X allows you to change the sensitivity of a mouse double click.
+Basic Info
+----------
 
-The library could also allow you to sense when the user performs a continued action (holding a pose) vs a quick action.
+This library expands upon the Myo library provided in the SDK to provide an easy
+interface to extract meaningful data from the provided data. For example, the
+Myo provides orientation data, but a lot of boiler plate code is required to
+extract the relative roll/pitch/yaw angle between two orientations. This library
+provides `OrientationUtility.h` to make this calculation easy.
 
-Maybe the library could take advantage of machine learning to easily learn new pose combinations.
+In addition, we introduce two new poses, `waveUp` and `waveDown` which are triggered
+when `waveIn` or `waveOut` are triggered and the user's wrist is oriented
+appropriately. For example, when the users palm is facing down, `waveUp` is
+triggered instead of `waveOut`, and `waveDown` is triggered instead of `waveIn`. The
+opposite is true when the user's palm is facing up.
 
-The library should also provide the ability to debounce the gestures. For example if a user performs a pose for only a millisecond, it was probably a mistake. Equally, if a user is performing a pose and then switches to the rest pose for a millisecond before performing the same pose again, it was also probably a mistake. This could be easily implemented by simply ignoring short bursts of poses (i.e. treat the rest post the same as all of the other poses).
+We also provide a class to easily detect basic patterns which we call gestures.
+These gestures include clicking, double clicking, and holding a pose. You can
+also use this library to debounce the pose input if you find you often trigger
+poses accidentally.
 
-The library would allow you to provide a callback function for when an action supported by the library is detected.
+Finally, the library is very flexible. Each class is templated and allows you to
+mix and match parts of the library together if you only want to use specific
+features.
 
-The library will support pattern recognition of poses too (i.e. have a specific pattern of short / long thumb-to-pinky poses which unlocks the device).
+Usage
+-----
 
-Implement a short timeout duration after an accepted pose to prevent unwanted pose recognitions. This will specifically help when opening your hand after the fist pose as it will sometimes be incorrectly recognized as a finger spread pose.
+The easiest way to use this library is to create a new class and have it derive
+from `PoseGestures`. This will include all of the features from the library. You
+must also implement the onPose function. Note that this onPose function is
+different than the onPose function called by the `DeviceListener` class in two
+ways. 1: it does not have a timestamp and 2: it has a custom pose type. This
+pose type *must* match the pose type from the parent class. You can implement
+any of the virtual functions defined in DeviceListener, however you *must* call
+the same function in the parent class. You are free to call it anywhere in the
+function you like, but we suggest calling it first before anything else.
+```c++
+#include <myo/myo.hpp>
+#include "PoseGestures.h"
 
-Dependencies
+class ExampleClass : public PoseGestures<> {
+ public:
+  // This function is called from the PoseGestures class.
+  void onPose(myo::Myo* myo, PoseGestures<>::Pose pose) {
+    std::cout << "Look at all these new poses! " << pose << std::endl;
+    // Do stuff using all of MyoIntelligesture's cool features :)
+  }
+
+  // This function is called from the DeviceListener class.
+  void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
+    PoseGestures<>::onPose(myo, timestamp, pose);
+    // Do stuff using plain old poses...
+  }
+};
+```
+You will notice `onPose(myo::Myo*, PoseGestures<>::Pose)` gets called multiple
+times for every time `onPose(myo::Myo*, uint64_t, myo::Pose)` is called. This is
+because gesture data is contained in the `PoseGestures<>::Pose` object.
+Therefore if you quickly click a pose, it will triger an onPose event once with
+a `none` gesture, and once with a `singleClick` gesture.
+
+Future Plans
 ------------
-[Boost](http://www.boost.org/)
+
+- More complex pattern matching, possible using machine learning.
+- Ability to suppress poses if it's part of a more complicated pose.
