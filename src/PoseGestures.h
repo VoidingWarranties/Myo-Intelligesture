@@ -77,8 +77,9 @@ class PoseGestures : public BaseClass {
     Gesture gesture_;
   };
 
-  PoseGestures(int click_max_hold_min = 1000)
+  PoseGestures(int click_max_hold_min = 1000, int double_click_timeout = 750)
       : click_max_hold_min_(click_max_hold_min),
+        double_click_timeout_(double_click_timeout),
         last_pose_(PoseClass(PoseClass::rest), Pose::Gesture::none) {}
 
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
@@ -98,7 +99,7 @@ class PoseGestures : public BaseClass {
           millisecondsBetweenTicks(
               last_pose_times_[last_pose_gesture_singleClick.toString()],
               last_pose_times_[last_pose_gesture_none.toString()]) <=
-              click_max_hold_min_) {
+              double_click_timeout_) {
         // Double click. Suppresses the current single click.
         current_pose = Pose(last_pose_.pose(), Pose::Gesture::doubleClick);
       } else {
@@ -133,7 +134,7 @@ class PoseGestures : public BaseClass {
   }
 
  private:
-  int click_max_hold_min_;
+  int click_max_hold_min_, double_click_timeout_;
 
   Pose last_pose_;
   std::unordered_map<std::string, BasicTimer> last_pose_times_;
