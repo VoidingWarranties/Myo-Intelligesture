@@ -16,7 +16,7 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    ExampleClass<> listener;
+    ExampleClass listener;
 
     hub.addListener(&listener);
 

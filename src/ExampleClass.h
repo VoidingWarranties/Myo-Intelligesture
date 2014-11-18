@@ -4,11 +4,16 @@
 #include <myo/myo.hpp>
 #include "PoseGestures.h"
 
-template <class BaseClass = PoseGestures<>, class PoseClass = PoseGestures<>::Pose>
+typedef PoseGestures<> BaseClass;
+typedef PoseGestures<>::Pose PoseClass;
 class ExampleClass : public BaseClass {
  public:
   void onPose(myo::Myo* myo, PoseClass pose) {
     std::cout << pose << std::endl;
+    if (pose.pose() == PoseClass::thumbToPinky) {
+      std::cout << "HA" << std::endl;
+      this->calibrateOrientation();
+    }
   }
 };
 
