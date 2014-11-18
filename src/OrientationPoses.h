@@ -55,13 +55,6 @@ class OrientationPoses : public BaseClass {
     Type pose_;
   };
 
-  OrientationPoses() : roll_(0), roll_mid_(0) {}
-
-  virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
-                                 const myo::Quaternion<float>& quat) {
-    BaseClass::onOrientationData(myo, timestamp, quat);
-  }
-
   virtual void onPose(myo::Myo* myo, PoseClass pose) {
     if (pose == PoseClass::waveIn || pose == PoseClass::waveOut) {
       typedef Orientation<>::Wrist Wrist;
@@ -81,11 +74,6 @@ class OrientationPoses : public BaseClass {
   }
 
   virtual void onPose(myo::Myo* myo, Pose pose) = 0;
-
-  void setRollMid() { roll_mid_ = roll_; }
-
- private:
-  float roll_, roll_mid_;
 };
 
 #endif
