@@ -10,9 +10,26 @@
 
 template <class PoseClass>
 class DeviceListenerWrapper : public myo::DeviceListener {
+ protected:
+  typedef DeviceListenerWrapper<PoseClass>* listener_t;
+  std::set<listener_t> listeners_;
+
  public:
-  virtual void onPose(myo::Myo*, uint64_t, PoseClass) {}
-  virtual void onPeriodic(myo::Myo* myo) {}
+  void addListener(listener_t listener) { listeners_.insert(listener); }
+  void removeListener(listener_t listener) { listeners_.erase(listener); }
+
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp, PoseClass pose) {
+    std::for_each(listeners_.begin(), listeners_.end(),
+                  [myo, timestamp, pose](listener_t listener) {
+      listener->onPose(myo, timestamp, pose);
+    });
+  }
+  virtual void onPeriodic(myo::Myo* myo) {
+    std::for_each(listeners_.begin(), listeners_.end(),
+                  [myo](listener_t listener) {
+      listener->onPeriodic(myo);
+    });
+  }
 };
 
 #endif
