@@ -3,6 +3,7 @@
 
 #include "RootFeature.h"
 #include "Debounce.h"
+#include "ExampleClass.h"
 
 int main() {
   try {
@@ -14,6 +15,7 @@ int main() {
 
     RootFeature root_feature;
     auto debounce = make_debounce(root_feature);
+    auto example = make_example(debounce);
 
     hub.addListener(&root_feature);
 

@@ -2,19 +2,22 @@
 #define MYO_INTELLIGESTURE_EXAMPLECLASS_H_
 
 #include <myo/myo.hpp>
-#include "PoseGestures.h"
 
-typedef PoseGestures<> BaseClass;
-typedef PoseGestures<>::Pose PoseClass;
-class ExampleClass : public BaseClass {
+#include "DeviceListenerWrapper.h"
+
+template <class PrevClass>
+class ExampleClass : public DeviceListenerWrapper<typename PrevClass::Pose> {
  public:
-  void onPose(myo::Myo* myo, PoseClass pose) {
+  ExampleClass(PrevClass& prev_class) { prev_class.addListener(this); }
+
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp, typename PrevClass::Pose pose) {
     std::cout << pose << std::endl;
-    if (pose.pose() == PoseClass::thumbToPinky) {
-      std::cout << "HA" << std::endl;
-      this->calibrateOrientation();
-    }
   }
 };
+
+template <class PrevClass>
+ExampleClass<PrevClass> make_example(PrevClass& prev_class) {
+  return ExampleClass<PrevClass>(prev_class);
+}
 
 #endif
