@@ -3,20 +3,15 @@
  * to call Base::onPeriodic.
  */
 
-#ifndef MYO_INTELLIGESTURE_DEVICELISTENERWRAPPER_H_
-#define MYO_INTELLIGESTURE_DEVICELISTENERWRAPPER_H_
+#ifndef MYO_INTELLIGESTURE_DEVICE_LISTENER_WRAPPER_H_
+#define MYO_INTELLIGESTURE_DEVICE_LISTENER_WRAPPER_H_
 
 #include <myo/myo.hpp>
 
+template <class PoseClass>
 class DeviceListenerWrapper : public myo::DeviceListener {
  public:
-  virtual void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
-    onPose(myo, pose);
-  }
-  virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
-                                 const myo::Quaternion<float>& quat) {}
-
-  virtual void onPose(myo::Myo* myo, myo::Pose pose) = 0;
+  virtual void onPose(myo::Myo*, uint64_t, PoseClass) {}
   virtual void onPeriodic(myo::Myo* myo) {}
 };
 

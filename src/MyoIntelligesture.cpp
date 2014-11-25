@@ -1,12 +1,7 @@
 #include <iostream>
 #include <myo/myo.hpp>
 
-#include "DeviceListenerWrapper.h"
-#include "OrientationPoses.h"
-#include "Debounce.h"
-#include "Orientation.h"
-#include "PoseGestures.h"
-#include "ExampleClass.h"
+#include "RootFeature.h"
 
 int main() {
   try {
@@ -16,14 +11,14 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    ExampleClass listener;
+    RootFeature root_feature;
 
-    hub.addListener(&listener);
+    hub.addListener(&root_feature);
 
     // Event loop.
     while (true) {
       hub.run(1000 / 20);
-      listener.onPeriodic(myo);
+      root_feature.onPeriodic(myo);
     }
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << std::endl;
