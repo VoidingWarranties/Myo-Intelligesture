@@ -8,49 +8,52 @@
 #define MYO_INTELLIGESTURE_DEBOUNCE_H_
 
 #include <myo/myo.hpp>
-#include "OrientationPoses.h"
+
+#include "DeviceListenerWrapper.h"
 #include "../../Basic-Timer/BasicTimer.h"
 
-template <class BaseClass = OrientationPoses<>, class PoseClass = OrientationPoses<>::Pose>
-class Debounce : public BaseClass {
+template <class PrevClass>
+class Debounce : public DeviceListenerWrapper<typename PrevClass::Pose> {
  public:
-  class Pose : public PoseClass {
-   public:
-    Pose(PoseClass pose) : PoseClass(pose) {}
-    Pose(typename PoseClass::Type t) : PoseClass(t) {}
-  };
+  typedef typename PrevClass::Pose Pose;
 
-  Debounce(int debounce_delay = 10)
-      : debounce_delay_(debounce_delay),
-        last_pose_(PoseClass::rest),
-        previous_debounced_pose_(PoseClass::rest)
-  {
+  Debounce(PrevClass& prev_class, int timeout_ms = 10)
+      : timeout_ms_(timeout_ms),
+        last_pose_(PrevClass::Pose::rest),
+        last_debounced_pose_(last_pose_) {
+    prev_class.addListener(this);
     last_pose_time_.tick();
   }
 
-  virtual void onPose(myo::Myo* myo, PoseClass pose) {
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp,
+                      typename PrevClass::Pose pose) {
     last_pose_ = pose;
     last_pose_time_.tick();
   }
 
-  virtual void onPose(myo::Myo* myo, Pose pose) = 0;
-
   virtual void onPeriodic(myo::Myo* myo) {
-    BaseClass::onPeriodic(myo);
-
     uint64_t passed_milliseconds = last_pose_time_.millisecondsSinceTick();
-    if (passed_milliseconds > debounce_delay_ &&
-        last_pose_ != previous_debounced_pose_) {
-      previous_debounced_pose_ = last_pose_;
+    if (passed_milliseconds > timeout_ms_ &&
+        last_pose_ != last_debounced_pose_) {
+      last_debounced_pose_ = last_pose_;
       last_pose_time_.tick();
-      onPose(myo, Pose(last_pose_));
+      BaseClass::onPose(myo, 0, Pose(last_pose_));
     }
+
+    BaseClass::onPeriodic(myo);
   }
 
  private:
-  int debounce_delay_;
-  PoseClass last_pose_, previous_debounced_pose_;
+  typedef DeviceListenerWrapper<typename PrevClass::Pose> BaseClass;
+
+  int timeout_ms_;
+  typename PrevClass::Pose last_pose_, last_debounced_pose_;
   BasicTimer last_pose_time_;
 };
+
+template <class PrevClass>
+Debounce<PrevClass> make_debounce(PrevClass& prev_class) {
+  return Debounce<PrevClass>(prev_class);
+}
 
 #endif

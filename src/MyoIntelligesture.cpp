@@ -2,6 +2,7 @@
 #include <myo/myo.hpp>
 
 #include "RootFeature.h"
+#include "Debounce.h"
 
 int main() {
   try {
@@ -12,6 +13,7 @@ int main() {
     }
 
     RootFeature root_feature;
+    auto debounce = make_debounce(root_feature);
 
     hub.addListener(&root_feature);
 
