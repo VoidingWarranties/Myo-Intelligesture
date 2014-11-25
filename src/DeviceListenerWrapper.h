@@ -7,6 +7,7 @@
 #define MYO_INTELLIGESTURE_DEVICE_LISTENER_WRAPPER_H_
 
 #include <set>
+#include <algorithm>
 #include <myo/myo.hpp>
 
 template <class PoseClass>
