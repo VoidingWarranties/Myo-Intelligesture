@@ -12,21 +12,21 @@
 #include "DeviceListenerWrapper.h"
 #include "../../Basic-Timer/BasicTimer.h"
 
-template <class PrevClass>
-class Debounce : public DeviceListenerWrapper<typename PrevClass::Pose> {
+template <class ParentFeature>
+class Debounce : public DeviceListenerWrapper<typename ParentFeature::Pose> {
  public:
-  typedef typename PrevClass::Pose Pose;
+  typedef typename ParentFeature::Pose Pose;
 
-  Debounce(PrevClass& prev_class, int timeout_ms = 10)
+  Debounce(ParentFeature& parent_feature, int timeout_ms = 10)
       : timeout_ms_(timeout_ms),
-        last_pose_(PrevClass::Pose::rest),
+        last_pose_(ParentFeature::Pose::rest),
         last_debounced_pose_(last_pose_) {
-    prev_class.addListener(this);
+    parent_feature.addChildFeature(this);
     last_pose_time_.tick();
   }
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      typename PrevClass::Pose pose) {
+                      typename ParentFeature::Pose pose) {
     last_pose_ = pose;
     last_pose_time_.tick();
   }
@@ -44,16 +44,16 @@ class Debounce : public DeviceListenerWrapper<typename PrevClass::Pose> {
   }
 
  private:
-  typedef DeviceListenerWrapper<typename PrevClass::Pose> BaseClass;
+  typedef DeviceListenerWrapper<typename ParentFeature::Pose> BaseClass;
 
   int timeout_ms_;
-  typename PrevClass::Pose last_pose_, last_debounced_pose_;
+  typename ParentFeature::Pose last_pose_, last_debounced_pose_;
   BasicTimer last_pose_time_;
 };
 
-template <class PrevClass>
-Debounce<PrevClass> make_debounce(PrevClass& prev_class) {
-  return Debounce<PrevClass>(prev_class);
+template <class ParentFeature>
+Debounce<ParentFeature> make_debounce(ParentFeature& parent_feature) {
+  return Debounce<ParentFeature>(parent_feature);
 }
 
 #endif

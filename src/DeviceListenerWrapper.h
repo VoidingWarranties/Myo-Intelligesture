@@ -13,23 +13,27 @@
 template <class PoseClass>
 class DeviceListenerWrapper : public myo::DeviceListener {
  protected:
-  typedef DeviceListenerWrapper<PoseClass>* listener_t;
-  std::set<listener_t> listeners_;
+  typedef DeviceListenerWrapper<PoseClass>* child_feature_t;
+  std::set<child_feature_t> child_features_;
 
  public:
-  void addListener(listener_t listener) { listeners_.insert(listener); }
-  void removeListener(listener_t listener) { listeners_.erase(listener); }
+  void addChildFeature(child_feature_t feature) {
+    child_features_.insert(feature);
+  }
+  void removeChildFeature(child_feature_t feature) {
+    child_features_.erase(feature);
+  }
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp, PoseClass pose) {
-    std::for_each(listeners_.begin(), listeners_.end(),
-                  [myo, timestamp, pose](listener_t listener) {
-      listener->onPose(myo, timestamp, pose);
+    std::for_each(child_features_.begin(), child_features_.end(),
+                  [myo, timestamp, pose](child_feature_t feature) {
+      feature->onPose(myo, timestamp, pose);
     });
   }
   virtual void onPeriodic(myo::Myo* myo) {
-    std::for_each(listeners_.begin(), listeners_.end(),
-                  [myo](listener_t listener) {
-      listener->onPeriodic(myo);
+    std::for_each(child_features_.begin(), child_features_.end(),
+                  [myo](child_feature_t feature) {
+      feature->onPeriodic(myo);
     });
   }
 };
