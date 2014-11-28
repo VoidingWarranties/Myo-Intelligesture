@@ -14,19 +14,21 @@
 
 template <class ParentFeature>
 class Debounce : public DeviceListenerWrapper<typename ParentFeature::Pose> {
+  typedef typename ParentFeature::Pose ParentPose;
+  typedef DeviceListenerWrapper<ParentPose> BaseClass;
+
  public:
-  typedef typename ParentFeature::Pose Pose;
+  typedef ParentPose Pose;
 
   Debounce(ParentFeature& parent_feature, int timeout_ms = 10)
       : timeout_ms_(timeout_ms),
-        last_pose_(ParentFeature::Pose::rest),
+        last_pose_(ParentPose::rest),
         last_debounced_pose_(last_pose_) {
     parent_feature.addChildFeature(this);
     last_pose_time_.tick();
   }
 
-  virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      typename ParentFeature::Pose pose) {
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp, ParentPose pose) {
     last_pose_ = pose;
     last_pose_time_.tick();
   }
@@ -44,10 +46,8 @@ class Debounce : public DeviceListenerWrapper<typename ParentFeature::Pose> {
   }
 
  private:
-  typedef DeviceListenerWrapper<typename ParentFeature::Pose> BaseClass;
-
   int timeout_ms_;
-  typename ParentFeature::Pose last_pose_, last_debounced_pose_;
+  ParentPose last_pose_, last_debounced_pose_;
   BasicTimer last_pose_time_;
 };
 
