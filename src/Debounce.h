@@ -15,7 +15,6 @@
 template <class ParentFeature>
 class Debounce : public DeviceListenerWrapper {
   typedef typename ParentFeature::Pose ParentPose;
-  typedef DeviceListenerWrapper BaseClass;
 
  public:
   typedef ParentPose Pose;
@@ -40,10 +39,10 @@ class Debounce : public DeviceListenerWrapper {
         last_pose_ != last_debounced_pose_) {
       last_debounced_pose_ = last_pose_;
       last_pose_time_.tick();
-      BaseClass::onIntelligesturePose(myo, 0, Pose(last_pose_));
+      DeviceListenerWrapper::onIntelligesturePose(myo, 0, Pose(last_pose_));
     }
 
-    BaseClass::onPeriodic(myo);
+    DeviceListenerWrapper::onPeriodic(myo);
   }
 
  private:

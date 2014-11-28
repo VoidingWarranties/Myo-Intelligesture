@@ -6,15 +6,16 @@
 #include "DeviceListenerWrapper.h"
 
 template <class ParentFeature>
-class ExampleClass
-    : public DeviceListenerWrapper {
+class ExampleClass : public DeviceListenerWrapper {
+  typedef typename ParentFeature::Pose ParentPose;
+
  public:
   ExampleClass(ParentFeature& parent_feature) {
     parent_feature.addChildFeature(this);
   }
 
   virtual void onIntelligesturePose(myo::Myo* myo, uint64_t timestamp, const myo::Pose& pose) {
-    typename ParentFeature::Pose new_pose = static_cast<const typename ParentFeature::Pose&>(pose);
+    ParentPose new_pose = static_cast<const ParentPose&>(pose);
     std::cout << new_pose << std::endl;
   }
 };
