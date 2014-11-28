@@ -5,7 +5,7 @@
 
 #include "DeviceListenerWrapper.h"
 
-class RootFeature : public DeviceListenerWrapper {
+class RootFeature : public myo::DeviceListener, public DeviceListenerWrapper {
  public:
   typedef myo::Pose Pose;
 

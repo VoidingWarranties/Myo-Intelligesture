@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <myo/myo.hpp>
 
-class DeviceListenerWrapper : public myo::DeviceListener {
+class DeviceListenerWrapper {
  protected:
   typedef DeviceListenerWrapper* child_feature_t;
   std::set<child_feature_t> child_features_;
