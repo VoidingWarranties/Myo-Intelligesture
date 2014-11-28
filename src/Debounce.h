@@ -13,9 +13,9 @@
 #include "../../Basic-Timer/BasicTimer.h"
 
 template <class ParentFeature>
-class Debounce : public DeviceListenerWrapper<typename ParentFeature::Pose> {
+class Debounce : public DeviceListenerWrapper {
   typedef typename ParentFeature::Pose ParentPose;
-  typedef DeviceListenerWrapper<ParentPose> BaseClass;
+  typedef DeviceListenerWrapper BaseClass;
 
  public:
   typedef ParentPose Pose;
@@ -28,8 +28,9 @@ class Debounce : public DeviceListenerWrapper<typename ParentFeature::Pose> {
     last_pose_time_.tick();
   }
 
-  virtual void onPose(myo::Myo* myo, uint64_t timestamp, ParentPose pose) {
-    last_pose_ = pose;
+  virtual void onIntelligesturePose(myo::Myo* myo, uint64_t timestamp,
+                                    const myo::Pose& pose) {
+    last_pose_ = static_cast<const ParentPose&>(pose);
     last_pose_time_.tick();
   }
 
@@ -39,7 +40,7 @@ class Debounce : public DeviceListenerWrapper<typename ParentFeature::Pose> {
         last_pose_ != last_debounced_pose_) {
       last_debounced_pose_ = last_pose_;
       last_pose_time_.tick();
-      BaseClass::onPose(myo, 0, Pose(last_pose_));
+      BaseClass::onIntelligesturePose(myo, 0, Pose(last_pose_));
     }
 
     BaseClass::onPeriodic(myo);

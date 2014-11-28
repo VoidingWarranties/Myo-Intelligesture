@@ -7,15 +7,15 @@
 
 template <class ParentFeature>
 class ExampleClass
-    : public DeviceListenerWrapper<typename ParentFeature::Pose> {
+    : public DeviceListenerWrapper {
  public:
   ExampleClass(ParentFeature& parent_feature) {
     parent_feature.addChildFeature(this);
   }
 
-  virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      typename ParentFeature::Pose pose) {
-    std::cout << pose << std::endl;
+  virtual void onIntelligesturePose(myo::Myo* myo, uint64_t timestamp, const myo::Pose& pose) {
+    typename ParentFeature::Pose new_pose = static_cast<const typename ParentFeature::Pose&>(pose);
+    std::cout << new_pose << std::endl;
   }
 };
 

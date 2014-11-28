@@ -10,10 +10,9 @@
 #include <algorithm>
 #include <myo/myo.hpp>
 
-template <class PoseClass>
 class DeviceListenerWrapper : public myo::DeviceListener {
  protected:
-  typedef DeviceListenerWrapper<PoseClass>* child_feature_t;
+  typedef DeviceListenerWrapper* child_feature_t;
   std::set<child_feature_t> child_features_;
 
  public:
@@ -24,15 +23,15 @@ class DeviceListenerWrapper : public myo::DeviceListener {
     child_features_.erase(feature);
   }
 
-  virtual void onPose(myo::Myo* myo, uint64_t timestamp, PoseClass pose) {
+  virtual void onIntelligesturePose(myo::Myo* myo, uint64_t timestamp, const myo::Pose& pose) {
     std::for_each(child_features_.begin(), child_features_.end(),
-                  [myo, timestamp, pose](child_feature_t feature) {
-      feature->onPose(myo, timestamp, pose);
+                  [&](child_feature_t feature) {
+      feature->onIntelligesturePose(myo, timestamp, pose);
     });
   }
   virtual void onPeriodic(myo::Myo* myo) {
     std::for_each(child_features_.begin(), child_features_.end(),
-                  [myo](child_feature_t feature) {
+                  [&](child_feature_t feature) {
       feature->onPeriodic(myo);
     });
   }
