@@ -31,7 +31,7 @@ class RootFeature : public myo::DeviceListener, public DeviceListenerWrapper {
     DeviceListenerWrapper::onArmUnsync(myo, timestamp);
   }
   virtual void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
-    DeviceListenerWrapper::onIntelligesturePose(myo, timestamp, pose);
+    DeviceListenerWrapper::onPose(myo, timestamp, pose);
   }
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
                                  const myo::Quaternion<float>& rotation) {

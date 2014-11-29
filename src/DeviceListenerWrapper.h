@@ -62,11 +62,11 @@ class DeviceListenerWrapper {
       feature->onArmUnsync(myo, timestamp);
     });
   }
-  virtual void onIntelligesturePose(myo::Myo* myo, uint64_t timestamp,
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                                     const myo::Pose& pose) {
     std::for_each(child_features_.begin(), child_features_.end(),
                   [&](child_feature_t feature) {
-      feature->onIntelligesturePose(myo, timestamp, pose);
+      feature->onPose(myo, timestamp, pose);
     });
   }
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,

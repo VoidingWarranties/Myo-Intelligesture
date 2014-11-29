@@ -27,7 +27,7 @@ class Debounce : public DeviceListenerWrapper {
     last_pose_time_.tick();
   }
 
-  virtual void onIntelligesturePose(myo::Myo* myo, uint64_t timestamp,
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                                     const myo::Pose& pose) {
     last_pose_ = static_cast<const ParentPose&>(pose);
     last_pose_time_.tick();
@@ -39,7 +39,7 @@ class Debounce : public DeviceListenerWrapper {
         last_pose_ != last_debounced_pose_) {
       last_debounced_pose_ = last_pose_;
       last_pose_time_.tick();
-      DeviceListenerWrapper::onIntelligesturePose(myo, 0, Pose(last_pose_));
+      DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
     }
 
     DeviceListenerWrapper::onPeriodic(myo);
