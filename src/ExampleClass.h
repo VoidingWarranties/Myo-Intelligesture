@@ -10,7 +10,7 @@ class ExampleClass : public BaseClass {
  public:
   void onPose(myo::Myo* myo, PoseClass pose) {
     std::cout << pose << std::endl;
-    if (pose.pose() == PoseClass::thumbToPinky) {
+    if (pose.pose() == PoseClass::doubleTap) {
       std::cout << "HA" << std::endl;
       this->calibrateOrientation();
     }
