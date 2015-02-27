@@ -1,0 +1,3 @@
+[submodule "lib/Basic-Timer"]
+	path = lib/Basic-Timer
+	url = https://github.com/VoidingWarranties/Basic-Timer.git

@@ -9,7 +9,7 @@
 
 #include <myo/myo.hpp>
 #include "OrientationPoses.h"
-#include "../../Basic-Timer/BasicTimer.h"
+#include "../lib/Basic-Timer/BasicTimer.h"
 
 template <class BaseClass = OrientationPoses<>, class PoseClass = OrientationPoses<>::Pose>
 class Debounce : public BaseClass {
