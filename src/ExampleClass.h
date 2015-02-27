@@ -14,7 +14,8 @@ class ExampleClass : public DeviceListenerWrapper {
     parent_feature.addChildFeature(this);
   }
 
-  virtual void onPose(myo::Myo* myo, uint64_t timestamp, const myo::Pose& pose) {
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp,
+                      const myo::Pose& pose) override {
     ParentPose new_pose = static_cast<const ParentPose&>(pose);
     std::cout << new_pose << std::endl;
   }

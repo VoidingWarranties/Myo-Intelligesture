@@ -28,12 +28,12 @@ class Debounce : public DeviceListenerWrapper {
   }
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                                    const myo::Pose& pose) {
+                      const myo::Pose& pose) override {
     last_pose_ = static_cast<const ParentPose&>(pose);
     last_pose_time_.tick();
   }
 
-  virtual void onPeriodic(myo::Myo* myo) {
+  virtual void onPeriodic(myo::Myo* myo) override {
     uint64_t passed_milliseconds = last_pose_time_.millisecondsSinceTick();
     if (passed_milliseconds > timeout_ms_ &&
         last_pose_ != last_debounced_pose_) {
