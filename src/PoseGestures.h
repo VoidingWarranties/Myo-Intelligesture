@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <myo/myo.hpp>
 #include "Debounce.h"
-#include "../../Basic-Timer/BasicTimer.h"
+#include "../lib/Basic-Timer/BasicTimer.h"
 
 template <class BaseClass = Debounce<>, class PoseClass = Debounce<>::Pose>
 class PoseGestures : public BaseClass {

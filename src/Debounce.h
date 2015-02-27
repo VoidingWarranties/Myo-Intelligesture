@@ -10,7 +10,7 @@
 #include <myo/myo.hpp>
 
 #include "DeviceListenerWrapper.h"
-#include "../../Basic-Timer/BasicTimer.h"
+#include "../lib/Basic-Timer/BasicTimer.h"
 
 template <class ParentFeature>
 class Debounce : public DeviceListenerWrapper {
