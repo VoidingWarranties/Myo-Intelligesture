@@ -25,82 +25,70 @@ class DeviceListenerWrapper {
 
   virtual void onPair(myo::Myo* myo, uint64_t timestamp,
                       myo::FirmwareVersion firmware_version) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onPair(myo, timestamp, firmware_version);
-    });
+    }
   }
   virtual void onUnpair(myo::Myo* myo, uint64_t timestamp) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onUnpair(myo, timestamp);
-    });
+    }
   }
   virtual void onConnect(myo::Myo* myo, uint64_t timestamp,
                          myo::FirmwareVersion firmware_version) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onConnect(myo, timestamp, firmware_version);
-    });
+    }
   }
   virtual void onDisconnect(myo::Myo* myo, uint64_t timestamp) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onDisconnect(myo, timestamp);
-    });
+    }
   }
   virtual void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
                          myo::XDirection x_direction) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onArmSync(myo, timestamp, arm, x_direction);
-    });
+    }
   }
   virtual void onArmUnsync(myo::Myo* myo, uint64_t timestamp) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onArmUnsync(myo, timestamp);
-    });
+    }
   }
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                                     const myo::Pose& pose) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onPose(myo, timestamp, pose);
-    });
+    }
   }
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
                                  const myo::Quaternion<float>& rotation) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onOrientationData(myo, timestamp, rotation);
-    });
+    }
   }
   virtual void onAccelerometerData(myo::Myo* myo, uint64_t timestamp,
                                    const myo::Vector3<float>& acceleration) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onAccelerometerData(myo, timestamp, acceleration);
-    });
+    }
   }
   virtual void onGyroscopeData(myo::Myo* myo, uint64_t timestamp,
                                const myo::Vector3<float>& gyro) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onGyroscopeData(myo, timestamp, gyro);
-    });
+    }
   }
   virtual void onRssi(myo::Myo* myo, uint64_t timestamp, int8_t rssi) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onRssi(myo, timestamp, rssi);
-    });
+    }
   }
   virtual void onPeriodic(myo::Myo* myo) {
-    std::for_each(child_features_.begin(), child_features_.end(),
-                  [&](child_feature_t feature) {
+    for (auto feature : child_features_) {
       feature->onPeriodic(myo);
-    });
+    }
   }
 };
 
