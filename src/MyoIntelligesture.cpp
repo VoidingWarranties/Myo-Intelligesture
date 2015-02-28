@@ -3,6 +3,7 @@
 
 #include "RootFeature.h"
 #include "Debounce.h"
+#include "Orientation.h"
 #include "ExampleClass.h"
 
 int main() {
@@ -15,7 +16,8 @@ int main() {
 
     RootFeature root_feature;
     auto debounce = make_debounce(root_feature);
-    auto example = make_example(debounce);
+    auto orientation = make_orientation(root_feature);
+    auto example = make_example(debounce, orientation);
 
     hub.addListener(&root_feature);
 
