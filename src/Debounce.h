@@ -19,7 +19,7 @@ class Debounce : public DeviceListenerWrapper {
  public:
   typedef ParentPose Pose;
 
-  Debounce(ParentFeature& parent_feature, int timeout_ms = 10);
+  Debounce(ParentFeature& parent_feature, int timeout_ms);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                       const myo::Pose& pose) override;
@@ -59,8 +59,9 @@ void Debounce<ParentFeature>::onPeriodic(myo::Myo* myo) {
 }
 
 template <class ParentFeature>
-Debounce<ParentFeature> make_debounce(ParentFeature& parent_feature) {
-  return Debounce<ParentFeature>(parent_feature);
+Debounce<ParentFeature> make_debounce(ParentFeature& parent_feature,
+                                      int timeout_ms = 10) {
+  return Debounce<ParentFeature>(parent_feature, timeout_ms);
 }
 
 #endif
