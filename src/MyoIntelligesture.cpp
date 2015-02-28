@@ -21,6 +21,7 @@ int main() {
 
     // Event loop.
     while (true) {
+      myo->unlock(myo::Myo::unlockTimed);
       hub.run(1000 / 20);
       root_feature.onPeriodic(myo);
     }
