@@ -45,6 +45,11 @@ void Debounce<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
                                      const myo::Pose& pose) {
   last_pose_ = static_cast<const ParentPose&>(pose);
   last_pose_time_.tick();
+  // Don't debounce doubleTaps because of their uniqely short duration.
+  if (last_pose_ == ParentPose::doubleTap) {
+    last_debounced_pose_ = last_pose_;
+    DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
+  }
 }
 
 template <class ParentFeature>
