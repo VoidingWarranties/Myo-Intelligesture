@@ -8,6 +8,7 @@
 #define MYO_INTELLIGESTURE_ORIENTATIONPOSES_H_
 
 #include <myo/myo.hpp>
+#include <string>
 
 #include "DeviceListenerWrapper.h"
 #include "Orientation.h"
