@@ -13,11 +13,11 @@ Myo provides orientation data, but a lot of boiler plate code is required to
 extract the relative roll/pitch/yaw angle between two orientations. This library
 provides `OrientationUtility.h` to make this calculation easy.
 
-In addition, we introduce two new poses, `waveUp` and `waveDown` which are triggered
-when `waveIn` or `waveOut` are triggered and the user's wrist is oriented
-appropriately. For example, when the users palm is facing down, `waveUp` is
-triggered instead of `waveOut`, and `waveDown` is triggered instead of `waveIn`. The
-opposite is true when the user's palm is facing up.
+In addition, we introduce two new poses, `waveUp` and `waveDown` which are
+triggered when `waveIn` or `waveOut` are triggered and the user's wrist is
+oriented appropriately. For example, when the users palm is facing down,
+`waveUp` is triggered instead of `waveOut`, and `waveDown` is triggered instead
+of `waveIn`. The opposite is true when the user's palm is facing up.
 
 We also provide a class to easily detect basic patterns which we call gestures.
 These gestures include clicking, double clicking, and holding a pose. You can
@@ -31,42 +31,46 @@ features.
 Usage
 -----
 
-The easiest way to use this library is to create a new class and have it derive
-from `PoseGestures`. This will include all of the features from the library. You
-must also implement the onPose function. Note that this onPose function is
-different than the onPose function called by the `DeviceListener` class in two
-ways. 1: it does not have a timestamp and 2: it has a custom pose type. This
-pose type *must* match the pose type from the parent class. You can implement
-any of the virtual functions defined in DeviceListener, however you *must* call
-the same function in the parent class. You are free to call it anywhere in the
-function you like, but we suggest calling it first before anything else.
+The easiest way to use this library is to create a new leaf-feature and add it
+to the feature tree. For a more detailed explanation of the feature tree, see
+[Explanation](#Explanation). See `ExampleCLass.h` for a simple example.
+
+The root of the feature tree is always `RootFeature`. You can add child features
+to a parent feature by passing the parent feature to the child feature in the
+child feature's constructor or more conveniently the feature's factory function.
+
+Here's a simple example of a feature tree. Try it for yourself!
 ```c++
-#include <myo/myo.hpp>
-#include "PoseGestures.h"
-
-class ExampleClass : public PoseGestures<> {
- public:
-  // This function is called from the PoseGestures class.
-  void onPose(myo::Myo* myo, PoseGestures<>::Pose pose) {
-    std::cout << "Look at all these new poses! " << pose << std::endl;
-    // Do stuff using all of MyoIntelligesture's cool features :)
-  }
-
-  // This function is called from the DeviceListener class.
-  void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
-    PoseGestures<>::onPose(myo, timestamp, pose);
-    // Do stuff using plain old poses...
-  }
-};
+RootFeature root_feature;
+auto debounce = make_debounce(root_feature);
+auto example = make_example(debounce);
 ```
-You will notice `onPose(myo::Myo*, PoseGestures<>::Pose)` gets called multiple
-times for every time `onPose(myo::Myo*, uint64_t, myo::Pose)` is called. This is
-because gesture data is contained in the `PoseGestures<>::Pose` object.
-Therefore if you quickly click a pose, it will triger an onPose event once with
-a `none` gesture, and once with a `singleClick` gesture.
+
+Sometimes one feature, let's call it feature_a, needs access to the non-virtual
+methods of another feature, let's call it feature_b. This is accomplished by
+passing in feature_b to feature_a's constructor. For example, OrientationPoses
+needs an Orientation feature. Note that it is not important where the features
+are relative to each other in the tree.
+```c++
+RootFeature root_feature;
+auto orientation = make_orientation(root_feature);
+auto debounce = make_debounce(root_feature);
+auto orientation_poses = make_orientation_poses(debounce, orientation);
+auto example = make_example(orientation_poses);
+```
+
+Explanation
+-----------
+
+Coming soon...
 
 Future Plans
 ------------
 
 - More complex pattern matching, possible using machine learning.
 - Ability to suppress poses if it's part of a more complicated pose.
+
+Dependencies
+------------
+
+- [Basic-Timer](https://github.com/VoidingWarranties/Basic-Timer)
