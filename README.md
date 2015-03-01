@@ -31,9 +31,9 @@ features.
 Usage
 -----
 
-The easiest way to use this library is to create a new leaf-feature and add it
-to the feature tree. For a more detailed explanation of the feature tree, see
-[Explanation](#Explanation). See `ExampleCLass.h` for a simple example.
+The easiest way to use this library is to create a new feature and add it as a
+leaf to the feature tree. For a more detailed explanation of the feature tree,
+see [Explanation](#explanation). See `ExampleCLass.h` for a simple example.
 
 The root of the feature tree is always `RootFeature`. You can add child features
 to a parent feature by passing the parent feature to the child feature in the
@@ -62,7 +62,14 @@ auto example = make_example(orientation_poses);
 Explanation
 -----------
 
-Coming soon...
+The feature tree is an N-ary tree where the root feature is the entry point for
+all data from the Myo. Each feature is responsible for passing on this data to
+its child features. This is automatically by `DeviceListenerWrapper` if the
+corresponding method is not overridden by the feature. Features can opt to
+modify or not pass the data on to their child features. `Debounce` is an example
+of a feature that doesn't pass pose data on to its child features if the pose
+lasts less than a specified duration. `OrientationPoses` is an example of a
+feature that modifies pose data before passing it on.
 
 Future Plans
 ------------
