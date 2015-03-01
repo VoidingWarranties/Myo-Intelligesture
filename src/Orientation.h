@@ -9,13 +9,12 @@
 #include "DeviceListenerWrapper.h"
 #include "OrientationUtility.h"
 
-template <class ParentFeature>
 class Orientation : public DeviceListenerWrapper {
  public:
   enum class Arm { unknown, forearmLevel, forearmDown, forearmUp };
   enum class Wrist { unknown, palmSideways, palmDown, palmUp };
 
-  Orientation(ParentFeature& parent_feature);
+  Orientation(DeviceListenerWrapper& parent_feature);
 
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
                                  const myo::Quaternion<float>& rotation) {
@@ -35,15 +34,12 @@ class Orientation : public DeviceListenerWrapper {
   myo::Quaternion<float> rotation_, mid_;
 };
 
-template <class ParentFeature>
-Orientation<ParentFeature>::Orientation(ParentFeature& parent_feature)
+Orientation::Orientation(DeviceListenerWrapper& parent_feature)
     : rotation_(), mid_() {
   parent_feature.addChildFeature(this);
 }
 
-template <class ParentFeature>
-typename Orientation<ParentFeature>::Arm
-Orientation<ParentFeature>::getArmOrientation() const {
+typename Orientation::Arm Orientation::getArmOrientation() const {
   float pitch_diff = OrientationUtility::RelativeOrientation(
       mid_, rotation_, OrientationUtility::QuaternionToPitch);
   if (pitch_diff < -1) {
@@ -55,9 +51,7 @@ Orientation<ParentFeature>::getArmOrientation() const {
   }
 }
 
-template <class ParentFeature>
-typename Orientation<ParentFeature>::Wrist
-Orientation<ParentFeature>::getWristOrientation() const {
+typename Orientation::Wrist Orientation::getWristOrientation() const {
   float roll_diff = OrientationUtility::RelativeOrientation(
       mid_, rotation_, OrientationUtility::QuaternionToRoll);
   if (roll_diff < -0.2) {
@@ -69,9 +63,10 @@ Orientation<ParentFeature>::getWristOrientation() const {
   }
 }
 
-template <class ParentFeature>
-Orientation<ParentFeature> make_orientation(ParentFeature& parent_feature) {
-  return Orientation<ParentFeature>(parent_feature);
+// This factory function is no longer necessary now that Orientation is not
+// templated, but it is kept here for consistency.
+Orientation make_orientation(DeviceListenerWrapper& parent_feature) {
+  return Orientation(parent_feature);
 }
 
 #endif

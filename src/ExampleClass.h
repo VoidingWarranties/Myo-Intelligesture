@@ -12,18 +12,18 @@ class ExampleClass : public DeviceListenerWrapper {
 
  public:
   ExampleClass(ParentFeature& parent_feature,
-               Orientation<RootFeature>& orientation);
+               Orientation& orientation);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                       const myo::Pose& pose) override;
 
  private:
-  Orientation<RootFeature>& orientation_;
+  Orientation& orientation_;
 };
 
 template <class ParentFeature>
 ExampleClass<ParentFeature>::ExampleClass(ParentFeature& parent_feature,
-                                          Orientation<RootFeature>& orientation)
+                                          Orientation& orientation)
     : orientation_(orientation) {
   parent_feature.addChildFeature(this);
 }
@@ -36,13 +36,13 @@ void ExampleClass<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
   auto wrist = orientation_.getWristOrientation();
   std::string armStr = "";
   switch (arm) {
-    case Orientation<RootFeature>::Arm::forearmLevel:
+    case Orientation::Arm::forearmLevel:
       armStr = "level";
       break;
-    case Orientation<RootFeature>::Arm::forearmDown:
+    case Orientation::Arm::forearmDown:
       armStr = "down";
       break;
-    case Orientation<RootFeature>::Arm::forearmUp:
+    case Orientation::Arm::forearmUp:
       armStr = "up";
       break;
     default:
@@ -51,13 +51,13 @@ void ExampleClass<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
   }
   std::string wristStr = "";
   switch (wrist) {
-    case Orientation<RootFeature>::Wrist::palmSideways:
+    case Orientation::Wrist::palmSideways:
       wristStr = "sideways";
       break;
-    case Orientation<RootFeature>::Wrist::palmDown:
+    case Orientation::Wrist::palmDown:
       wristStr = "down";
       break;
-    case Orientation<RootFeature>::Wrist::palmUp:
+    case Orientation::Wrist::palmUp:
       wristStr = "up";
       break;
     default:
@@ -70,7 +70,7 @@ void ExampleClass<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
 
 template <class ParentFeature>
 ExampleClass<ParentFeature> make_example(
-    ParentFeature& parent_feature, Orientation<RootFeature>& orientation) {
+    ParentFeature& parent_feature, Orientation& orientation) {
   return ExampleClass<ParentFeature>(parent_feature, orientation);
 }
 
