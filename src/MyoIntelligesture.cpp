@@ -1,10 +1,10 @@
 #include <iostream>
 #include <myo/myo.hpp>
 
-#include "DeviceListenerWrapper.h"
-#include "OrientationPoses.h"
+#include "RootFeature.h"
 #include "Debounce.h"
 #include "Orientation.h"
+#include "OrientationPoses.h"
 #include "PoseGestures.h"
 #include "ExampleClass.h"
 
@@ -16,14 +16,20 @@ int main() {
       throw std::runtime_error("Unable to find a Myo!");
     }
 
-    ExampleClass listener;
+    RootFeature root_feature;
+    auto debounce = make_debounce(root_feature);
+    auto orientation = make_orientation(root_feature);
+    auto orientation_poses = make_orientation_poses(debounce, orientation);
+    auto pose_gestures = make_pose_gestures(orientation_poses);
+    auto example = make_example(pose_gestures);
 
-    hub.addListener(&listener);
+    hub.addListener(&root_feature);
 
     // Event loop.
     while (true) {
+      myo->unlock(myo::Myo::unlockTimed);
       hub.run(1000 / 20);
-      listener.onPeriodic(myo);
+      root_feature.onPeriodic(myo);
     }
   } catch (const std::exception& ex) {
     std::cerr << "Error: " << ex.what() << std::endl;

@@ -2,19 +2,36 @@
 #define MYO_INTELLIGESTURE_EXAMPLECLASS_H_
 
 #include <myo/myo.hpp>
-#include "PoseGestures.h"
 
-typedef PoseGestures<> BaseClass;
-typedef PoseGestures<>::Pose PoseClass;
-class ExampleClass : public BaseClass {
+#include "DeviceListenerWrapper.h"
+#include "Orientation.h"
+
+template <class ParentFeature>
+class ExampleClass : public DeviceListenerWrapper {
+  typedef typename ParentFeature::Pose ParentPose;
+
  public:
-  void onPose(myo::Myo* myo, PoseClass pose) {
-    std::cout << pose << std::endl;
-    if (pose.pose() == PoseClass::doubleTap) {
-      std::cout << "HA" << std::endl;
-      this->calibrateOrientation();
-    }
-  }
+  ExampleClass(ParentFeature& parent_feature);
+
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp,
+                      const myo::Pose& pose) override;
 };
+
+template <class ParentFeature>
+ExampleClass<ParentFeature>::ExampleClass(ParentFeature& parent_feature) {
+  parent_feature.addChildFeature(this);
+}
+
+template <class ParentFeature>
+void ExampleClass<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
+                                         const myo::Pose& pose) {
+  ParentPose new_pose = static_cast<const ParentPose&>(pose);
+  std::cout << new_pose << std::endl;
+}
+
+template <class ParentFeature>
+ExampleClass<ParentFeature> make_example(ParentFeature& parent_feature) {
+  return ExampleClass<ParentFeature>(parent_feature);
+}
 
 #endif

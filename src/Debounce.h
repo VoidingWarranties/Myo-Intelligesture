@@ -8,49 +8,65 @@
 #define MYO_INTELLIGESTURE_DEBOUNCE_H_
 
 #include <myo/myo.hpp>
-#include "OrientationPoses.h"
+
+#include "DeviceListenerWrapper.h"
 #include "../lib/Basic-Timer/BasicTimer.h"
 
-template <class BaseClass = OrientationPoses<>, class PoseClass = OrientationPoses<>::Pose>
-class Debounce : public BaseClass {
+template <class ParentFeature>
+class Debounce : public DeviceListenerWrapper {
+  typedef typename ParentFeature::Pose ParentPose;
+
  public:
-  class Pose : public PoseClass {
-   public:
-    Pose(PoseClass pose) : PoseClass(pose) {}
-    Pose(typename PoseClass::Type t) : PoseClass(t) {}
-  };
+  typedef ParentPose Pose;
 
-  Debounce(int debounce_delay = 10)
-      : debounce_delay_(debounce_delay),
-        last_pose_(PoseClass::rest),
-        previous_debounced_pose_(PoseClass::rest)
-  {
-    last_pose_time_.tick();
-  }
+  Debounce(ParentFeature& parent_feature, int timeout_ms);
 
-  virtual void onPose(myo::Myo* myo, PoseClass pose) {
-    last_pose_ = pose;
-    last_pose_time_.tick();
-  }
-
-  virtual void onPose(myo::Myo* myo, Pose pose) = 0;
-
-  virtual void onPeriodic(myo::Myo* myo) {
-    BaseClass::onPeriodic(myo);
-
-    uint64_t passed_milliseconds = last_pose_time_.millisecondsSinceTick();
-    if (passed_milliseconds > debounce_delay_ &&
-        last_pose_ != previous_debounced_pose_) {
-      previous_debounced_pose_ = last_pose_;
-      last_pose_time_.tick();
-      onPose(myo, Pose(last_pose_));
-    }
-  }
+  virtual void onPose(myo::Myo* myo, uint64_t timestamp,
+                      const myo::Pose& pose) override;
+  virtual void onPeriodic(myo::Myo* myo) override;
 
  private:
-  int debounce_delay_;
-  PoseClass last_pose_, previous_debounced_pose_;
+  int timeout_ms_;
+  ParentPose last_pose_, last_debounced_pose_;
   BasicTimer last_pose_time_;
 };
+
+template <class ParentFeature>
+Debounce<ParentFeature>::Debounce(ParentFeature& parent_feature, int timeout_ms)
+    : timeout_ms_(timeout_ms),
+      last_pose_(ParentPose::rest),
+      last_debounced_pose_(last_pose_) {
+  parent_feature.addChildFeature(this);
+  last_pose_time_.tick();
+}
+
+template <class ParentFeature>
+void Debounce<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
+                                     const myo::Pose& pose) {
+  last_pose_ = static_cast<const ParentPose&>(pose);
+  last_pose_time_.tick();
+  // Don't debounce doubleTaps because of their uniqely short duration.
+  if (last_pose_ == ParentPose::doubleTap) {
+    last_debounced_pose_ = last_pose_;
+    DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
+  }
+}
+
+template <class ParentFeature>
+void Debounce<ParentFeature>::onPeriodic(myo::Myo* myo) {
+  uint64_t passed_milliseconds = last_pose_time_.millisecondsSinceTick();
+  if (passed_milliseconds > timeout_ms_ && last_pose_ != last_debounced_pose_) {
+    last_debounced_pose_ = last_pose_;
+    last_pose_time_.tick();
+    DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
+  }
+  DeviceListenerWrapper::onPeriodic(myo);
+}
+
+template <class ParentFeature>
+Debounce<ParentFeature> make_debounce(ParentFeature& parent_feature,
+                                      int timeout_ms = 10) {
+  return Debounce<ParentFeature>(parent_feature, timeout_ms);
+}
 
 #endif

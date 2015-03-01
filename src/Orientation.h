@@ -5,105 +5,22 @@
 #ifndef MYO_INTELLIGESTURE_ORIENTATION_H_
 #define MYO_INTELLIGESTURE_ORIENTATION_H_
 
-#include <string>
-#include <iostream>
 #include <myo/myo.hpp>
+
 #include "DeviceListenerWrapper.h"
 #include "OrientationUtility.h"
 
-template <class BaseClass = DeviceListenerWrapper>
-class Orientation : public BaseClass {
+class Orientation : public DeviceListenerWrapper {
  public:
-  class Arm {
-   public:
-    enum Type { unknown, forearmLevel, forearmDown, forearmUp };
+  enum class Arm { unknown, forearmLevel, forearmDown, forearmUp };
+  enum class Wrist { unknown, palmSideways, palmDown, palmUp };
 
-    Arm() : arm_(unknown) {}
-    Arm(const Type& t) : arm_(t) {}
-
-    Type type() const { return arm_; }
-
-    std::string toString() const {
-      switch (arm_) {
-        case forearmLevel:
-          return "forearmLevel";
-        case forearmDown:
-          return "forearmDown";
-        case forearmUp:
-          return "forearmUp";
-        default:
-          return "unknown";
-      }
-    }
-
-    friend std::ostream& operator<<(std::ostream& out, const Arm& arm) {
-      return out << arm.toString();
-    }
-    friend bool operator==(const Arm& arm, const Type& t) {
-      return arm.arm_ == t;
-    }
-    friend bool operator==(const Type& t, const Arm& arm) {
-      return arm.arm_ == t;
-    }
-    friend bool operator!=(const Arm& arm, const Type& t) {
-      return arm.arm_ != t;
-    }
-    friend bool operator!=(const Type& t, const Arm& arm) {
-      return arm.arm_ != t;
-    }
-
-   private:
-    Type arm_;
-  };
-
-  class Wrist {
-   public:
-    enum Type { unknown, palmSideways, palmDown, palmUp };
-
-    Wrist() : wrist_(unknown) {}
-    Wrist(const Type& t) : wrist_(t) {}
-
-    Type type() const { return wrist_; }
-
-    std::string toString() const {
-      switch (wrist_) {
-        case palmSideways:
-          return "palmSideways";
-        case palmDown:
-          return "palmDown";
-        case palmUp:
-          return "palmUp";
-        default:
-          return "unknown";
-      }
-    }
-
-    friend std::ostream& operator<<(std::ostream& out, const Wrist& wrist) {
-      return out << wrist.toString();
-    }
-    friend bool operator==(const Wrist& wrist, const Type& t) {
-      return wrist.wrist_ == t;
-    }
-    friend bool operator==(const Type& t, const Wrist& wrist) {
-      return wrist.wrist_ == t;
-    }
-    friend bool operator!=(const Wrist& wrist, const Type& t) {
-      return wrist.wrist_ != t;
-    }
-    friend bool operator!=(const Type& t, const Wrist& wrist) {
-      return wrist.wrist_ != t;
-    }
-
-   private:
-    Type wrist_;
-  };
-
-  Orientation() : rotation_(), mid_() {}
+  Orientation(DeviceListenerWrapper& parent_feature);
 
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
-                                 const myo::Quaternion<float>& quat) {
-    BaseClass::onOrientationData(myo, timestamp, quat);
-    rotation_ = quat;
+                                 const myo::Quaternion<float>& rotation) {
+    rotation_ = rotation;
+    DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
   }
 
   // Calibrate sets the "start" position to use as a reference in order to
@@ -111,32 +28,46 @@ class Orientation : public BaseClass {
   // is the user's arm fully extended directly in front.
   void calibrateOrientation() { mid_ = rotation_; }
 
-  Arm getArmOrientation() const {
-    float pitch_diff = OrientationUtility::RelativeOrientation(
-        mid_, rotation_, OrientationUtility::QuaternionToPitch);
-    if (pitch_diff < -1) {
-      return Arm::forearmUp;
-    } else if (pitch_diff > 1) {
-      return Arm::forearmDown;
-    } else {
-      return Arm::forearmLevel;
-    }
-  }
-
-  Wrist getWristOrientation() const {
-    float roll_diff = OrientationUtility::RelativeOrientation(
-        mid_, rotation_, OrientationUtility::QuaternionToRoll);
-    if (roll_diff < -0.2) {
-      return Wrist::palmDown;
-    } else if (roll_diff > 0.3) {
-      return Wrist::palmUp;
-    } else {
-      return Wrist::palmSideways;
-    }
-  }
+  Arm getArmOrientation() const;
+  Wrist getWristOrientation() const;
 
  private:
   myo::Quaternion<float> rotation_, mid_;
 };
+
+Orientation::Orientation(DeviceListenerWrapper& parent_feature)
+    : rotation_(), mid_() {
+  parent_feature.addChildFeature(this);
+}
+
+typename Orientation::Arm Orientation::getArmOrientation() const {
+  float pitch_diff = OrientationUtility::RelativeOrientation(
+      mid_, rotation_, OrientationUtility::QuaternionToPitch);
+  if (pitch_diff < -1) {
+    return Arm::forearmUp;
+  } else if (pitch_diff > 1) {
+    return Arm::forearmDown;
+  } else {
+    return Arm::forearmLevel;
+  }
+}
+
+typename Orientation::Wrist Orientation::getWristOrientation() const {
+  float roll_diff = OrientationUtility::RelativeOrientation(
+      mid_, rotation_, OrientationUtility::QuaternionToRoll);
+  if (roll_diff < -0.2) {
+    return Wrist::palmDown;
+  } else if (roll_diff > 0.3) {
+    return Wrist::palmUp;
+  } else {
+    return Wrist::palmSideways;
+  }
+}
+
+// This factory function is no longer necessary now that Orientation is not
+// templated, but it is kept here for consistency.
+Orientation make_orientation(DeviceListenerWrapper& parent_feature) {
+  return Orientation(parent_feature);
+}
 
 #endif
