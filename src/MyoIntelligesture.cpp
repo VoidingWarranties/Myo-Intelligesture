@@ -5,6 +5,7 @@
 #include "Debounce.h"
 #include "Orientation.h"
 #include "OrientationPoses.h"
+#include "PoseGestures.h"
 #include "ExampleClass.h"
 
 int main() {
@@ -19,7 +20,8 @@ int main() {
     auto debounce = make_debounce(root_feature);
     auto orientation = make_orientation(root_feature);
     auto orientation_poses = make_orientation_poses(debounce, orientation);
-    auto example = make_example(orientation_poses);
+    auto pose_gestures = make_pose_gestures(orientation_poses);
+    auto example = make_example(pose_gestures);
 
     hub.addListener(&root_feature);
 
