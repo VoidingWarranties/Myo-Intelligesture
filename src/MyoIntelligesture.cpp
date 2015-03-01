@@ -21,7 +21,7 @@ int main() {
     auto orientation = make_orientation(root_feature);
     auto orientation_poses = make_orientation_poses(debounce, orientation);
     auto pose_gestures = make_pose_gestures(orientation_poses);
-    auto example = make_example(pose_gestures);
+    auto example = make_example(pose_gestures, orientation);
 
     hub.addListener(&root_feature);
 
