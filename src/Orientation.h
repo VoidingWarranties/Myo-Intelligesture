@@ -28,6 +28,8 @@ class Orientation : public DeviceListenerWrapper {
   // is the user's arm fully extended directly in front.
   void calibrateOrientation() { mid_ = rotation_; }
 
+  float getRelativeArmAngle() const;
+  float getRelativeWristAngle() const;
   Arm getArmOrientation() const;
   Wrist getWristOrientation() const;
 
@@ -38,6 +40,18 @@ class Orientation : public DeviceListenerWrapper {
 Orientation::Orientation(DeviceListenerWrapper& parent_feature)
     : rotation_(), mid_() {
   parent_feature.addChildFeature(this);
+}
+
+float Orientation::getRelativeArmAngle() const {
+  return OrientationUtility::RelativeOrientation(
+      mid_, rotation_, OrientationUtility::QuaternionToPitch);
+}
+
+// TODO: add a multiplier because your forearm only rotates a fraction of the
+// angle your wrist rotates.
+float Orientation::getRelativeWristAngle() const {
+  return OrientationUtility::RelativeOrientation(
+      mid_, rotation_, OrientationUtility::QuaternionToRoll);
 }
 
 typename Orientation::Arm Orientation::getArmOrientation() const {
