@@ -1,9 +1,6 @@
 Myo Intelligesture
 ==================
 
-A library for Myo which allows more complex gestures
-----------------------------------------------------
-
 Basic Info
 ----------
 
@@ -24,16 +21,15 @@ These gestures include clicking, double clicking, and holding a pose. You can
 also use this library to debounce the pose input if you find you often trigger
 poses accidentally.
 
-Finally, the library is very flexible. Each class is templated and allows you to
-mix and match parts of the library together if you only want to use specific
-features.
+The library is designed to be extensible and flexible. We use a feature tree to
+let you to mix and match different parts of the library.
 
 Usage
 -----
 
 The easiest way to use this library is to create a new feature and add it as a
 leaf to the feature tree. For a more detailed explanation of the feature tree,
-see [Explanation](#explanation). See `ExampleCLass.h` for a simple example.
+see [Explanation](#explanation). See `ExampleClass.h` for a simple example.
 
 The root of the feature tree is always `RootFeature`. You can add child features
 to a parent feature by passing the parent feature to the child feature in the
@@ -46,7 +42,7 @@ auto debounce = make_debounce(root_feature);
 auto example = make_example(debounce);
 ```
 
-Sometimes one feature, let's call it feature_a, needs access to the non-virtual
+Often one feature, let's call it feature_a, needs access to the non-virtual
 methods of another feature, let's call it feature_b. This is accomplished by
 passing in feature_b to feature_a's constructor. For example, OrientationPoses
 needs an Orientation feature. Note that it is not important where the features
