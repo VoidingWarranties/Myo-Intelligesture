@@ -6,6 +6,7 @@
 #include "Orientation.h"
 #include "OrientationPoses.h"
 #include "PoseGestures.h"
+#include "ExponentialMovingAverageFilter.h"
 #include "ExampleClass.h"
 
 int main() {
@@ -18,7 +19,9 @@ int main() {
 
     RootFeature root_feature;
     auto debounce = make_debounce(root_feature);
-    auto orientation = make_orientation(root_feature);
+    auto exponential_moving_average = make_exponential_moving_average_filter(
+        root_feature, ExponentialMovingAverageFilter::OrientationData, 0.2);
+    auto orientation = make_orientation(exponential_moving_average);
     auto orientation_poses = make_orientation_poses(debounce, orientation);
     auto pose_gestures = make_pose_gestures(orientation_poses);
     auto example = make_example(pose_gestures, orientation);
