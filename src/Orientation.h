@@ -17,11 +17,9 @@ class Orientation : public DeviceListenerWrapper {
 
   Orientation(DeviceListenerWrapper& parent_feature);
 
-  virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
-                                 const myo::Quaternion<float>& rotation) {
-    rotation_ = rotation;
-    DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
-  }
+  virtual void onOrientationData(
+      myo::Myo* myo, uint64_t timestamp,
+      const myo::Quaternion<float>& rotation) override;
 
   // Calibrate sets the "start" position to use as a reference in order to
   // determine the orientation of the user's arm. Currently this start position
@@ -40,6 +38,12 @@ class Orientation : public DeviceListenerWrapper {
 Orientation::Orientation(DeviceListenerWrapper& parent_feature)
     : rotation_(), mid_() {
   parent_feature.addChildFeature(this);
+}
+
+void Orientation::onOrientationData(myo::Myo* myo, uint64_t timestamp,
+                                    const myo::Quaternion<float>& rotation) {
+  rotation_ = rotation;
+  DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
 }
 
 float Orientation::getRelativeArmAngle() const {
