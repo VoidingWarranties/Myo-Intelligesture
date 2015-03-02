@@ -24,7 +24,7 @@ class Orientation : public DeviceListenerWrapper {
   // Calibrate sets the "start" position to use as a reference in order to
   // determine the orientation of the user's arm. Currently this start position
   // is the user's arm fully extended directly in front.
-  void calibrateOrientation() { mid_ = rotation_; }
+  void calibrateOrientation();
 
   float getRelativeArmAngle() const;
   float getRelativeWristAngle() const;
@@ -45,6 +45,8 @@ void Orientation::onOrientationData(myo::Myo* myo, uint64_t timestamp,
   rotation_ = rotation;
   DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
 }
+
+void Orientation::calibrateOrientation() { mid_ = rotation_; }
 
 float Orientation::getRelativeArmAngle() const {
   return OrientationUtility::RelativeOrientation(
