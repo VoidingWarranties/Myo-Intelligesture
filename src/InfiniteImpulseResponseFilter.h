@@ -42,6 +42,13 @@ class InfiniteImpulseResponseFilter : public DeviceListenerWrapper {
   boost::optional<myo::Vector3<float>> gyroscope_data_;
 };
 
+InfiniteImpulseResponseFilter::DataFlags operator|(
+    InfiniteImpulseResponseFilter::DataFlags lhs,
+    InfiniteImpulseResponseFilter::DataFlags rhs) {
+  return static_cast<InfiniteImpulseResponseFilter::DataFlags>(
+      static_cast<int>(lhs) | static_cast<int>(rhs));
+}
+
 InfiniteImpulseResponseFilter::InfiniteImpulseResponseFilter(
     DeviceListenerWrapper& parent_feature, DataFlags flags)
     : flags_(flags),

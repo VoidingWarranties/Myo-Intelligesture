@@ -1,4 +1,5 @@
 /* A basic exponential moving average filter.
+ * See InfiniteImpulseResponseFilter.h for more info on IIR filters.
  * http://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
  */
 
