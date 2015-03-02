@@ -7,6 +7,7 @@
 #include "OrientationPoses.h"
 #include "PoseGestures.h"
 #include "ExponentialMovingAverageFilter.h"
+#include "MovingAverageFilter.h"
 #include "ExampleClass.h"
 
 int main() {
@@ -19,8 +20,14 @@ int main() {
 
     RootFeature root_feature;
     auto debounce = make_debounce(root_feature);
+    // This filter averages only orientation data.
+    auto moving_average = make_moving_average_filter(
+        root_feature, MovingAverageFilter::OrientationData, 10);
+    // This filter averages only accelerometer and gyroscope data.
     auto exponential_moving_average = make_exponential_moving_average_filter(
-        root_feature, ExponentialMovingAverageFilter::OrientationData, 0.2);
+        moving_average, ExponentialMovingAverageFilter::AccelerometerData |
+                            ExponentialMovingAverageFilter::GyroscopeData,
+        0.2);
     auto orientation = make_orientation(exponential_moving_average);
     auto orientation_poses = make_orientation_poses(debounce, orientation);
     auto pose_gestures = make_pose_gestures(orientation_poses);
