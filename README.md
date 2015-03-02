@@ -76,4 +76,5 @@ Future Plans
 Dependencies
 ------------
 
+- [Boost](http://www.boost.org/)
 - [Basic-Timer](https://github.com/VoidingWarranties/Basic-Timer)
