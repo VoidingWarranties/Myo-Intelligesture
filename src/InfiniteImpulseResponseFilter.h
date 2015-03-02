@@ -8,7 +8,7 @@
 #include <myo/myo.hpp>
 
 #include "DeviceListenerWrapper.h"
-#include <boost/optional/optional.hpp>
+#include <boost/optional.hpp>
 
 class InfiniteImpulseResponseFilter : public DeviceListenerWrapper {
  public:
