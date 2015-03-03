@@ -5,7 +5,6 @@
 #include "../src/features/filters/Debounce.h"
 #include "../src/features/Orientation.h"
 #include "../src/features/OrientationPoses.h"
-#include "../src/features/gestures/PoseGestures.h"
 #include "../src/features/filters/ExponentialMovingAverage.h"
 #include "../src/features/filters/MovingAverage.h"
 #include "ExampleFeature.h"
@@ -33,9 +32,7 @@ int main() {
     auto orientation = features::make_orientation(exponential_moving_average);
     auto orientation_poses =
         features::make_orientation_poses(debounce, orientation);
-    auto pose_gestures =
-        features::gestures::make_pose_gestures(orientation_poses);
-    auto example = make_example(pose_gestures, orientation);
+    auto example = make_example(orientation_poses, orientation);
 
     hub.addListener(&root_feature);
 

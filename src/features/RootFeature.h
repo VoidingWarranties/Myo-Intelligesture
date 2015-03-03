@@ -3,12 +3,13 @@
 #include <myo/myo.hpp>
 
 #include "../core/DeviceListenerWrapper.h"
+#include "../core/Pose.h"
 
 namespace features {
 class RootFeature : public myo::DeviceListener,
                     public core::DeviceListenerWrapper {
  public:
-  typedef myo::Pose Pose;
+  typedef core::Pose Pose;
 
   virtual void onPair(myo::Myo* myo, uint64_t timestamp,
                       myo::FirmwareVersion firmware_version) override {

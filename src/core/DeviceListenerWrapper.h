@@ -6,8 +6,9 @@
 #pragma once
 
 #include <set>
-#include <algorithm>
 #include <myo/myo.hpp>
+
+#include "Pose.h"
 
 namespace core {
 class DeviceListenerWrapper {
@@ -57,7 +58,7 @@ class DeviceListenerWrapper {
     }
   }
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const myo::Pose& pose) {
+                      const core::Pose& pose) {
     for (auto feature : child_features_) {
       feature->onPose(myo, timestamp, pose);
     }
