@@ -3,6 +3,8 @@
  * window size. A moving average filter is provided in MovingAverage.h
  */
 
+#pragma once
+
 #include <myo/myo.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/optional.hpp>

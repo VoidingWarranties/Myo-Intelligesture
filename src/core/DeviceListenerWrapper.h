@@ -3,8 +3,7 @@
  * to call Base::onPeriodic.
  */
 
-#ifndef MYO_INTELLIGESTURE_DEVICE_LISTENER_WRAPPER_H_
-#define MYO_INTELLIGESTURE_DEVICE_LISTENER_WRAPPER_H_
+#pragma once
 
 #include <set>
 #include <algorithm>
@@ -93,5 +92,3 @@ class DeviceListenerWrapper {
   }
 };
 }
-
-#endif

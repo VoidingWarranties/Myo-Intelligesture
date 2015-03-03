@@ -2,8 +2,7 @@
  * user's arm and wrist.
  */
 
-#ifndef MYO_INTELLIGESTURE_ORIENTATION_H_
-#define MYO_INTELLIGESTURE_ORIENTATION_H_
+#pragma once
 
 #include <myo/myo.hpp>
 
@@ -91,5 +90,3 @@ Orientation make_orientation(core::DeviceListenerWrapper& parent_feature) {
   return Orientation(parent_feature);
 }
 }
-
-#endif

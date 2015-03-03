@@ -1,5 +1,4 @@
-#ifndef MYO_INTELLIGESTURE_ROOT_FEATURE_H_
-#define MYO_INTELLIGESTURE_ROOT_FEATURE_H_
+#pragma once
 
 #include <myo/myo.hpp>
 
@@ -56,5 +55,3 @@ class RootFeature : public myo::DeviceListener,
   }
 };
 }
-
-#endif

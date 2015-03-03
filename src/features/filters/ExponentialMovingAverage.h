@@ -3,6 +3,8 @@
  * http://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
  */
 
+#pragma once
+
 #include "InfiniteImpulseResponse.h"
 #include "../../core/DeviceListenerWrapper.h"
 

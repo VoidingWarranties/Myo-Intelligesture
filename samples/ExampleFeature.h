@@ -1,5 +1,4 @@
-#ifndef MYO_INTELLIGESTURE_EXAMPLECLASS_H_
-#define MYO_INTELLIGESTURE_EXAMPLECLASS_H_
+#pragma once
 
 #include <myo/myo.hpp>
 
@@ -43,5 +42,3 @@ ExampleFeature<ParentFeature> make_example(ParentFeature& parent_feature,
                                            features::Orientation& orientation) {
   return ExampleFeature<ParentFeature>(parent_feature, orientation);
 }
-
-#endif

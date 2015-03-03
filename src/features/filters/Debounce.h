@@ -4,8 +4,7 @@
  * onPose(myo::Myo*, Pose).
  */
 
-#ifndef MYO_INTELLIGESTURE_DEBOUNCE_H_
-#define MYO_INTELLIGESTURE_DEBOUNCE_H_
+#pragma once
 
 #include <myo/myo.hpp>
 
@@ -72,5 +71,3 @@ Debounce<ParentFeature> make_debounce(ParentFeature& parent_feature,
 }
 }
 }
-
-#endif

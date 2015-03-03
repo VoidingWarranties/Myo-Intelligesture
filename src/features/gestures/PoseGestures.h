@@ -2,8 +2,7 @@
  * double clicking, and holding the pose.
  */
 
-#ifndef MYO_INTELLIGESTURE_POSEGESTURES_H_
-#define MYO_INTELLIGESTURE_POSEGESTURES_H_
+#pragma once
 
 #include <myo/myo.hpp>
 #include <string>
@@ -183,5 +182,3 @@ PoseGestures<ParentFeature> make_pose_gestures(ParentFeature& parent_feature,
 }
 }
 }
-
-#endif

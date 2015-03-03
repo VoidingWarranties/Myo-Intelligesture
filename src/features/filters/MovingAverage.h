@@ -3,6 +3,8 @@
  * http://en.wikipedia.org/wiki/Moving_average#Simple_moving_average
  */
 
+#pragma once
+
 #include <myo/myo.hpp>
 #include <boost/optional.hpp>
 #include <cassert>

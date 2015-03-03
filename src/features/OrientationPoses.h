@@ -4,8 +4,7 @@
  * instead of side to side.
  */
 
-#ifndef MYO_INTELLIGESTURE_ORIENTATIONPOSES_H_
-#define MYO_INTELLIGESTURE_ORIENTATIONPOSES_H_
+#pragma once
 
 #include <myo/myo.hpp>
 #include <string>
@@ -170,5 +169,3 @@ OrientationPoses<ParentFeature> make_orientation_poses(
   return OrientationPoses<ParentFeature>(parent_feature, orientation);
 }
 }
-
-#endif

@@ -5,6 +5,8 @@
  * ExponentialMovingAverage.h
  */
 
+#pragma once
+
 #include <myo/myo.hpp>
 
 #include "../../core/DeviceListenerWrapper.h"

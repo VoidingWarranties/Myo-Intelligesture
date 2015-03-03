@@ -3,8 +3,7 @@
  * the math in this namespace should probably be double checked.
  */
 
-#ifndef MYO_INTELLIGESTURE_ORIENTATIONUTILITY_H_
-#define MYO_INTELLIGESTURE_ORIENTATIONUTILITY_H_
+#pragma once
 
 #include <cmath>
 #include <algorithm>
@@ -49,5 +48,3 @@ float RelativeOrientation(
 }
 }
 }
-
-#endif
