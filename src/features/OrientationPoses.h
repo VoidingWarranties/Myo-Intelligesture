@@ -10,11 +10,12 @@
 #include <myo/myo.hpp>
 #include <string>
 
-#include "DeviceListenerWrapper.h"
+#include "../core/DeviceListenerWrapper.h"
 #include "Orientation.h"
 
+namespace features {
 template <class ParentFeature>
-class OrientationPoses : public DeviceListenerWrapper {
+class OrientationPoses : public core::DeviceListenerWrapper {
   typedef typename ParentFeature::Pose ParentPose;
 
  public:
@@ -137,29 +138,29 @@ void OrientationPoses<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
   if (parent_pose == ParentPose::waveIn) {
     switch (wrist_orientation) {
       case Orientation::Wrist::palmDown:
-        DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveDown));
+        core::DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveDown));
         break;
       case Orientation::Wrist::palmUp:
-        DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveUp));
+        core::DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveUp));
         break;
       default:
-        DeviceListenerWrapper::onPose(myo, 0, Pose(ParentPose::waveIn));
+        core::DeviceListenerWrapper::onPose(myo, 0, Pose(ParentPose::waveIn));
         break;
     }
   } else if (parent_pose == ParentPose::waveOut) {
     switch (wrist_orientation) {
       case Orientation::Wrist::palmDown:
-        DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveUp));
+        core::DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveUp));
         break;
       case Orientation::Wrist::palmUp:
-        DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveDown));
+        core::DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveDown));
         break;
       default:
-        DeviceListenerWrapper::onPose(myo, 0, Pose(ParentPose::waveOut));
+        core::DeviceListenerWrapper::onPose(myo, 0, Pose(ParentPose::waveOut));
         break;
     }
   } else {
-    DeviceListenerWrapper::onPose(myo, 0, Pose(parent_pose));
+    core::DeviceListenerWrapper::onPose(myo, 0, Pose(parent_pose));
   }
 }
 
@@ -167,6 +168,7 @@ template <class ParentFeature>
 OrientationPoses<ParentFeature> make_orientation_poses(
     ParentFeature& parent_feature, Orientation& orientation) {
   return OrientationPoses<ParentFeature>(parent_feature, orientation);
+}
 }
 
 #endif

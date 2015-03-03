@@ -1,4 +1,4 @@
-/* PoseGestures adds gesture detection for poses. Gestures include clicking,
+/* Pose adds gesture detection for poses. Gestures include clicking,
  * double clicking, and holding the pose.
  */
 
@@ -9,11 +9,13 @@
 #include <string>
 #include <unordered_map>
 
-#include "DeviceListenerWrapper.h"
-#include "../lib/Basic-Timer/BasicTimer.h"
+#include "../../core/DeviceListenerWrapper.h"
+#include "../../../lib/Basic-Timer/BasicTimer.h"
 
+namespace features {
+namespace gestures {
 template <class ParentFeature>
-class PoseGestures : public DeviceListenerWrapper {
+class PoseGestures : public core::DeviceListenerWrapper {
   typedef typename ParentFeature::Pose ParentPose;
 
  public:
@@ -30,8 +32,7 @@ class PoseGestures : public DeviceListenerWrapper {
     bool operator!=(const Pose& other) const;
 
     friend std::ostream& operator<<(
-        std::ostream& out,
-        const typename PoseGestures<ParentFeature>::Pose& pose) {
+        std::ostream& out, const typename PoseGestures<ParentFeature>::Pose& pose) {
       return out << pose.toString();
     }
     friend bool operator==(const Pose& lhs, GestureType rhs) {
@@ -135,8 +136,7 @@ void PoseGestures<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
 
   Pose current_pose;
   Pose last_pose_gesture_none = Pose(last_pose_, Pose::none);
-  Pose last_pose_gesture_singleClick =
-      Pose(last_pose_, Pose::singleClick);
+  Pose last_pose_gesture_singleClick = Pose(last_pose_, Pose::singleClick);
 
   if (last_pose_times_.count(last_pose_gesture_none.toString()) > 0 &&
       last_pose_times_[last_pose_gesture_none.toString()]
@@ -153,14 +153,14 @@ void PoseGestures<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
       current_pose = Pose(last_pose_, Pose::singleClick);
     }
     last_pose_times_[current_pose.toString()] = now;
-    DeviceListenerWrapper::onPose(myo, 0, current_pose);
+    core::DeviceListenerWrapper::onPose(myo, 0, current_pose);
   } else {
     current_pose = Pose(parent_pose, Pose::none);
   }
 
   last_pose_ = Pose(parent_pose, Pose::none);
   last_pose_times_[last_pose_.toString()] = now;
-  DeviceListenerWrapper::onPose(myo, 0, last_pose_);
+  core::DeviceListenerWrapper::onPose(myo, 0, last_pose_);
 }
 
 template <class ParentFeature>
@@ -170,7 +170,7 @@ void PoseGestures<ParentFeature>::onPeriodic(myo::Myo* myo) {
       last_pose_times_[Pose(last_pose_, Pose::none).toString()]
               .millisecondsSinceTick() > click_max_hold_min_) {
     last_pose_ = Pose(last_pose_, Pose::hold);
-    DeviceListenerWrapper::onPose(myo, 0, last_pose_);
+    core::DeviceListenerWrapper::onPose(myo, 0, last_pose_);
   }
 }
 
@@ -180,6 +180,8 @@ PoseGestures<ParentFeature> make_pose_gestures(ParentFeature& parent_feature,
                                                int double_click_timeout = 750) {
   return PoseGestures<ParentFeature>(parent_feature, click_max_hold_min,
                                      double_click_timeout);
+}
+}
 }
 
 #endif

@@ -7,15 +7,16 @@
 
 #include <myo/myo.hpp>
 
-#include "DeviceListenerWrapper.h"
-#include "OrientationUtility.h"
+#include "../core/DeviceListenerWrapper.h"
+#include "../core/OrientationUtility.h"
 
-class Orientation : public DeviceListenerWrapper {
+namespace features {
+class Orientation : public core::DeviceListenerWrapper {
  public:
   enum class Arm { unknown, forearmLevel, forearmDown, forearmUp };
   enum class Wrist { unknown, palmSideways, palmDown, palmUp };
 
-  Orientation(DeviceListenerWrapper& parent_feature);
+  Orientation(core::DeviceListenerWrapper& parent_feature);
 
   virtual void onOrientationData(
       myo::Myo* myo, uint64_t timestamp,
@@ -35,7 +36,7 @@ class Orientation : public DeviceListenerWrapper {
   myo::Quaternion<float> rotation_, mid_;
 };
 
-Orientation::Orientation(DeviceListenerWrapper& parent_feature)
+Orientation::Orientation(core::DeviceListenerWrapper& parent_feature)
     : rotation_(), mid_() {
   parent_feature.addChildFeature(this);
 }
@@ -43,26 +44,26 @@ Orientation::Orientation(DeviceListenerWrapper& parent_feature)
 void Orientation::onOrientationData(myo::Myo* myo, uint64_t timestamp,
                                     const myo::Quaternion<float>& rotation) {
   rotation_ = rotation;
-  DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
+  core::DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
 }
 
 void Orientation::calibrateOrientation() { mid_ = rotation_; }
 
 float Orientation::getRelativeArmAngle() const {
-  return OrientationUtility::RelativeOrientation(
-      mid_, rotation_, OrientationUtility::QuaternionToPitch);
+  return core::OrientationUtility::RelativeOrientation(
+      mid_, rotation_, core::OrientationUtility::QuaternionToPitch);
 }
 
 // TODO: add a multiplier because your forearm only rotates a fraction of the
 // angle your wrist rotates.
 float Orientation::getRelativeWristAngle() const {
-  return OrientationUtility::RelativeOrientation(
-      mid_, rotation_, OrientationUtility::QuaternionToRoll);
+  return core::OrientationUtility::RelativeOrientation(
+      mid_, rotation_, core::OrientationUtility::QuaternionToRoll);
 }
 
 typename Orientation::Arm Orientation::getArmOrientation() const {
-  float pitch_diff = OrientationUtility::RelativeOrientation(
-      mid_, rotation_, OrientationUtility::QuaternionToPitch);
+  float pitch_diff = core::OrientationUtility::RelativeOrientation(
+      mid_, rotation_, core::OrientationUtility::QuaternionToPitch);
   if (pitch_diff < -1) {
     return Arm::forearmUp;
   } else if (pitch_diff > 1) {
@@ -73,8 +74,8 @@ typename Orientation::Arm Orientation::getArmOrientation() const {
 }
 
 typename Orientation::Wrist Orientation::getWristOrientation() const {
-  float roll_diff = OrientationUtility::RelativeOrientation(
-      mid_, rotation_, OrientationUtility::QuaternionToRoll);
+  float roll_diff = core::OrientationUtility::RelativeOrientation(
+      mid_, rotation_, core::OrientationUtility::QuaternionToRoll);
   if (roll_diff < -0.2) {
     return Wrist::palmDown;
   } else if (roll_diff > 0.3) {
@@ -86,8 +87,9 @@ typename Orientation::Wrist Orientation::getWristOrientation() const {
 
 // This factory function is no longer necessary now that Orientation is not
 // templated, but it is kept here for consistency.
-Orientation make_orientation(DeviceListenerWrapper& parent_feature) {
+Orientation make_orientation(core::DeviceListenerWrapper& parent_feature) {
   return Orientation(parent_feature);
+}
 }
 
 #endif

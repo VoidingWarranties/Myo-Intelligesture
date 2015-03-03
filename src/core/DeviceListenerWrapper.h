@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <myo/myo.hpp>
 
+namespace core {
 class DeviceListenerWrapper {
  protected:
   typedef DeviceListenerWrapper* child_feature_t;
@@ -57,7 +58,7 @@ class DeviceListenerWrapper {
     }
   }
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                                    const myo::Pose& pose) {
+                      const myo::Pose& pose) {
     for (auto feature : child_features_) {
       feature->onPose(myo, timestamp, pose);
     }
@@ -91,5 +92,6 @@ class DeviceListenerWrapper {
     }
   }
 };
+}
 
 #endif

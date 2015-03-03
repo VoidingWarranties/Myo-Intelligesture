@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <functional>
 
+namespace core {
 namespace OrientationUtility {
 float QuaternionToRoll(const myo::Quaternion<float>& quat) {
   return std::atan2(2.0f * (quat.w() * quat.x() + quat.y() * quat.z()),
@@ -45,6 +46,7 @@ float RelativeOrientation(
   float orientation_start = QuaternionConversion(start);
   float orientation_end = QuaternionConversion(end);
   return RelativeOrientation(orientation_start, orientation_end);
+}
 }
 }
 

@@ -2,15 +2,17 @@
  * (IIR) filters. Unlike Finite Impulse Response (FIR) filters, IIR filters only
  * store on data point. A simple example of an IIR filter is an exponential
  * moving average. An exponential moving average filter is provided in
- * ExponentialMovingAverageFilter.h
+ * ExponentialMovingAverage.h
  */
 
 #include <myo/myo.hpp>
 
-#include "DeviceListenerWrapper.h"
+#include "../../core/DeviceListenerWrapper.h"
 #include <boost/optional.hpp>
 
-class InfiniteImpulseResponseFilter : public DeviceListenerWrapper {
+namespace features {
+namespace filters {
+class InfiniteImpulseResponse : public core::DeviceListenerWrapper {
  public:
   enum DataFlags {
     OrientationData   = 1 << 0,
@@ -18,8 +20,8 @@ class InfiniteImpulseResponseFilter : public DeviceListenerWrapper {
     GyroscopeData     = 1 << 2
   };
 
-  explicit InfiniteImpulseResponseFilter(DeviceListenerWrapper& parent_feature,
-                                         DataFlags flags);
+  explicit InfiniteImpulseResponse(core::DeviceListenerWrapper& parent_feature,
+                                   DataFlags flags);
 
   virtual void onOrientationData(
       myo::Myo* myo, uint64_t timestamp,
@@ -42,15 +44,15 @@ class InfiniteImpulseResponseFilter : public DeviceListenerWrapper {
   boost::optional<myo::Vector3<float>> gyroscope_data_;
 };
 
-InfiniteImpulseResponseFilter::DataFlags operator|(
-    InfiniteImpulseResponseFilter::DataFlags lhs,
-    InfiniteImpulseResponseFilter::DataFlags rhs) {
-  return static_cast<InfiniteImpulseResponseFilter::DataFlags>(
-      static_cast<int>(lhs) | static_cast<int>(rhs));
+InfiniteImpulseResponse::DataFlags operator|(
+    InfiniteImpulseResponse::DataFlags lhs,
+    InfiniteImpulseResponse::DataFlags rhs) {
+  return static_cast<InfiniteImpulseResponse::DataFlags>(static_cast<int>(lhs) |
+                                                         static_cast<int>(rhs));
 }
 
-InfiniteImpulseResponseFilter::InfiniteImpulseResponseFilter(
-    DeviceListenerWrapper& parent_feature, DataFlags flags)
+InfiniteImpulseResponse::InfiniteImpulseResponse(
+    core::DeviceListenerWrapper& parent_feature, DataFlags flags)
     : flags_(flags),
       orientation_data_(),
       accelerometer_data_(),
@@ -58,41 +60,42 @@ InfiniteImpulseResponseFilter::InfiniteImpulseResponseFilter(
   parent_feature.addChildFeature(this);
 }
 
-void InfiniteImpulseResponseFilter::onOrientationData(
+void InfiniteImpulseResponse::onOrientationData(
     myo::Myo* myo, uint64_t timestamp, const myo::Quaternion<float>& rotation) {
   if (flags_ & OrientationData) {
     UpdateOrientationData(rotation);
-    DeviceListenerWrapper::onOrientationData(myo, timestamp,
-                                             orientation_data_.get());
+    core::DeviceListenerWrapper::onOrientationData(myo, timestamp,
+                                                   orientation_data_.get());
   } else {
-    DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
+    core::DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
   }
 }
 
-void InfiniteImpulseResponseFilter::onAccelerometerData(
+void InfiniteImpulseResponse::onAccelerometerData(
     myo::Myo* myo, uint64_t timestamp,
     const myo::Vector3<float>& acceleration) {
   if (flags_ & AccelerometerData) {
     UpdateAccelerometerData(acceleration);
-    DeviceListenerWrapper::onAccelerometerData(myo, timestamp,
-                                               accelerometer_data_.get());
+    core::DeviceListenerWrapper::onAccelerometerData(myo, timestamp,
+                                                     accelerometer_data_.get());
   } else {
-    DeviceListenerWrapper::onAccelerometerData(myo, timestamp, acceleration);
+    core::DeviceListenerWrapper::onAccelerometerData(myo, timestamp,
+                                                     acceleration);
   }
 }
 
-void InfiniteImpulseResponseFilter::onGyroscopeData(
-    myo::Myo* myo, uint64_t timestamp, const myo::Vector3<float>& gyro) {
+void InfiniteImpulseResponse::onGyroscopeData(myo::Myo* myo, uint64_t timestamp,
+                                              const myo::Vector3<float>& gyro) {
   if (flags_ & GyroscopeData) {
     UpdateGyroscopeData(gyro);
-    DeviceListenerWrapper::onGyroscopeData(myo, timestamp,
-                                           gyroscope_data_.get());
+    core::DeviceListenerWrapper::onGyroscopeData(myo, timestamp,
+                                                 gyroscope_data_.get());
   } else {
-    DeviceListenerWrapper::onGyroscopeData(myo, timestamp, gyro);
+    core::DeviceListenerWrapper::onGyroscopeData(myo, timestamp, gyro);
   }
 }
 
-void InfiniteImpulseResponseFilter::UpdateOrientationData(
+void InfiniteImpulseResponse::UpdateOrientationData(
     const myo::Quaternion<float>& data) {
   if (!orientation_data_) {
     orientation_data_ = data;
@@ -105,7 +108,7 @@ void InfiniteImpulseResponseFilter::UpdateOrientationData(
   }
 }
 
-void InfiniteImpulseResponseFilter::UpdateAccelerometerData(
+void InfiniteImpulseResponse::UpdateAccelerometerData(
     const myo::Vector3<float>& data) {
   if (!accelerometer_data_) {
     accelerometer_data_ = data;
@@ -117,7 +120,7 @@ void InfiniteImpulseResponseFilter::UpdateAccelerometerData(
   }
 }
 
-void InfiniteImpulseResponseFilter::UpdateGyroscopeData(
+void InfiniteImpulseResponse::UpdateGyroscopeData(
     const myo::Vector3<float>& data) {
   if (!gyroscope_data_) {
     gyroscope_data_ = data;
@@ -127,4 +130,6 @@ void InfiniteImpulseResponseFilter::UpdateGyroscopeData(
     float z = Update(data.z(), gyroscope_data_.get().z());
     gyroscope_data_ = myo::Vector3<float>(x, y, z);
   }
+}
+}
 }

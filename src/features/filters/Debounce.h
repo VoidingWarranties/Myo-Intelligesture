@@ -9,11 +9,13 @@
 
 #include <myo/myo.hpp>
 
-#include "DeviceListenerWrapper.h"
-#include "../lib/Basic-Timer/BasicTimer.h"
+#include "../../core/DeviceListenerWrapper.h"
+#include "../../../lib/Basic-Timer/BasicTimer.h"
 
+namespace features {
+namespace filters {
 template <class ParentFeature>
-class Debounce : public DeviceListenerWrapper {
+class Debounce : public core::DeviceListenerWrapper {
   typedef typename ParentFeature::Pose ParentPose;
 
  public:
@@ -48,7 +50,7 @@ void Debounce<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
   // Don't debounce doubleTaps because of their uniqely short duration.
   if (last_pose_ == ParentPose::doubleTap) {
     last_debounced_pose_ = last_pose_;
-    DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
+    core::DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
   }
 }
 
@@ -58,15 +60,17 @@ void Debounce<ParentFeature>::onPeriodic(myo::Myo* myo) {
   if (passed_milliseconds > timeout_ms_ && last_pose_ != last_debounced_pose_) {
     last_debounced_pose_ = last_pose_;
     last_pose_time_.tick();
-    DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
+    core::DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
   }
-  DeviceListenerWrapper::onPeriodic(myo);
+  core::DeviceListenerWrapper::onPeriodic(myo);
 }
 
 template <class ParentFeature>
 Debounce<ParentFeature> make_debounce(ParentFeature& parent_feature,
                                       int timeout_ms = 10) {
   return Debounce<ParentFeature>(parent_feature, timeout_ms);
+}
+}
 }
 
 #endif

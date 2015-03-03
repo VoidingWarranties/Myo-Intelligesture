@@ -1,15 +1,17 @@
 /* An abstract base class to derive from to create Finite Impulse Response (FIR)
  * filters. A simple example for an FIR filter is a moving average with a fixed
- * window size. A moving average filter is provided in MovingAverageFilter.h
+ * window size. A moving average filter is provided in MovingAverage.h
  */
 
 #include <myo/myo.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/optional.hpp>
 
-#include "DeviceListenerWrapper.h"
+#include "../../core/DeviceListenerWrapper.h"
 
-class FiniteImpulseResponseFilter : public DeviceListenerWrapper {
+namespace features {
+namespace filters {
+class FiniteImpulseResponse : public core::DeviceListenerWrapper {
  public:
   enum DataFlags {
     OrientationData   = 1 << 0,
@@ -17,8 +19,8 @@ class FiniteImpulseResponseFilter : public DeviceListenerWrapper {
     GyroscopeData     = 1 << 2
   };
 
-  explicit FiniteImpulseResponseFilter(DeviceListenerWrapper& parent_feature,
-                                       DataFlags flags, int window_size);
+  explicit FiniteImpulseResponse(core::DeviceListenerWrapper& parent_feature,
+                                 DataFlags flags, int window_size);
 
   virtual void onOrientationData(
       myo::Myo* myo, uint64_t timestamp,
@@ -50,15 +52,16 @@ class FiniteImpulseResponseFilter : public DeviceListenerWrapper {
   boost::circular_buffer<myo::Vector3<float>> gyroscope_data_;
 };
 
-FiniteImpulseResponseFilter::DataFlags operator|(
-    FiniteImpulseResponseFilter::DataFlags lhs,
-    FiniteImpulseResponseFilter::DataFlags rhs) {
-  return static_cast<FiniteImpulseResponseFilter::DataFlags>(
-      static_cast<int>(lhs) | static_cast<int>(rhs));
+FiniteImpulseResponse::DataFlags operator|(
+    FiniteImpulseResponse::DataFlags lhs,
+    FiniteImpulseResponse::DataFlags rhs) {
+  return static_cast<FiniteImpulseResponse::DataFlags>(static_cast<int>(lhs) |
+                                                       static_cast<int>(rhs));
 }
 
-FiniteImpulseResponseFilter::FiniteImpulseResponseFilter(
-    DeviceListenerWrapper& parent_feature, DataFlags flags, int window_size)
+FiniteImpulseResponse::FiniteImpulseResponse(
+    core::DeviceListenerWrapper& parent_feature, DataFlags flags,
+    int window_size)
     : flags_(flags),
       orientation_data_(window_size),
       accelerometer_data_(window_size),
@@ -66,38 +69,39 @@ FiniteImpulseResponseFilter::FiniteImpulseResponseFilter(
   parent_feature.addChildFeature(this);
 }
 
-void FiniteImpulseResponseFilter::onOrientationData(
+void FiniteImpulseResponse::onOrientationData(
     myo::Myo* myo, uint64_t timestamp, const myo::Quaternion<float>& rotation) {
   if (flags_ & OrientationData) {
-    DeviceListenerWrapper::onOrientationData(myo, timestamp,
-                                             UpdateOrientationData(rotation));
+    core::DeviceListenerWrapper::onOrientationData(
+        myo, timestamp, UpdateOrientationData(rotation));
   } else {
-    DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
+    core::DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
   }
 }
 
-void FiniteImpulseResponseFilter::onAccelerometerData(
+void FiniteImpulseResponse::onAccelerometerData(
     myo::Myo* myo, uint64_t timestamp,
     const myo::Vector3<float>& acceleration) {
   if (flags_ & AccelerometerData) {
-    DeviceListenerWrapper::onAccelerometerData(
+    core::DeviceListenerWrapper::onAccelerometerData(
         myo, timestamp, UpdateAccelerationData(acceleration));
   } else {
-    DeviceListenerWrapper::onAccelerometerData(myo, timestamp, acceleration);
+    core::DeviceListenerWrapper::onAccelerometerData(myo, timestamp,
+                                                     acceleration);
   }
 }
 
-void FiniteImpulseResponseFilter::onGyroscopeData(
-    myo::Myo* myo, uint64_t timestamp, const myo::Vector3<float>& gyro) {
+void FiniteImpulseResponse::onGyroscopeData(myo::Myo* myo, uint64_t timestamp,
+                                            const myo::Vector3<float>& gyro) {
   if (flags_ & GyroscopeData) {
-    DeviceListenerWrapper::onGyroscopeData(myo, timestamp,
-                                           UpdateGyroscopeData(gyro));
+    core::DeviceListenerWrapper::onGyroscopeData(myo, timestamp,
+                                                 UpdateGyroscopeData(gyro));
   } else {
-    DeviceListenerWrapper::onGyroscopeData(myo, timestamp, gyro);
+    core::DeviceListenerWrapper::onGyroscopeData(myo, timestamp, gyro);
   }
 }
 
-myo::Quaternion<float> FiniteImpulseResponseFilter::UpdateOrientationData(
+myo::Quaternion<float> FiniteImpulseResponse::UpdateOrientationData(
     const myo::Quaternion<float>& data) {
   boost::optional<myo::Quaternion<float>> old_data;
   if (orientation_data_.full()) {
@@ -107,7 +111,7 @@ myo::Quaternion<float> FiniteImpulseResponseFilter::UpdateOrientationData(
   return RecalculateOrientation(data, old_data);
 }
 
-myo::Vector3<float> FiniteImpulseResponseFilter::UpdateAccelerationData(
+myo::Vector3<float> FiniteImpulseResponse::UpdateAccelerationData(
     const myo::Vector3<float>& data) {
   boost::optional<myo::Vector3<float>> old_data;
   if (accelerometer_data_.full()) {
@@ -117,7 +121,7 @@ myo::Vector3<float> FiniteImpulseResponseFilter::UpdateAccelerationData(
   return RecalculateAcceleration(data, old_data);
 }
 
-myo::Vector3<float> FiniteImpulseResponseFilter::UpdateGyroscopeData(
+myo::Vector3<float> FiniteImpulseResponse::UpdateGyroscopeData(
     const myo::Vector3<float>& data) {
   boost::optional<myo::Vector3<float>> old_data;
   if (gyroscope_data_.full()) {
@@ -125,4 +129,6 @@ myo::Vector3<float> FiniteImpulseResponseFilter::UpdateGyroscopeData(
   }
   gyroscope_data_.push_back(data);
   return RecalculateGyration(data, old_data);
+}
+}
 }
