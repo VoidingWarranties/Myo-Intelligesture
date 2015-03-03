@@ -8,8 +8,7 @@ class Pose {
  public:
   enum Type { rest, fist, waveIn, waveOut, fingersSpread, doubleTap, unkown };
 
-  Pose();
-  Pose(Type type);
+  Pose(Type type = unkown);
   Pose(const myo::Pose& pose);
   virtual ~Pose() {}
 
@@ -21,8 +20,6 @@ class Pose {
  private:
   Type type_;
 };
-
-Pose::Pose() : type_(unkown) {}
 
 Pose::Pose(Type type) : type_(type) {}
 
