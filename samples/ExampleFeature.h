@@ -3,6 +3,7 @@
 #include <myo/myo.hpp>
 
 #include "../src/core/DeviceListenerWrapper.h"
+#include "../src/core/Pose.h"
 #include "../src/features/Orientation.h"
 
 template <class ParentFeature>
@@ -14,7 +15,7 @@ class ExampleFeature : public core::DeviceListenerWrapper {
                  features::Orientation& orientation);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const myo::Pose& pose) override;
+                      const core::Pose& pose) override;
 
  private:
   features::Orientation& orientation_;
@@ -29,7 +30,7 @@ ExampleFeature<ParentFeature>::ExampleFeature(
 
 template <class ParentFeature>
 void ExampleFeature<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
-                                           const myo::Pose& pose) {
+                                           const core::Pose& pose) {
   ParentPose new_pose = static_cast<const ParentPose&>(pose);
   if (new_pose == ParentPose::doubleTap) {
     orientation_.calibrateOrientation();

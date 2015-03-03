@@ -9,6 +9,7 @@
 #include <myo/myo.hpp>
 
 #include "../../core/DeviceListenerWrapper.h"
+#include "../../core/Pose.h"
 #include "../../../lib/Basic-Timer/BasicTimer.h"
 
 namespace features {
@@ -23,7 +24,7 @@ class Debounce : public core::DeviceListenerWrapper {
   Debounce(ParentFeature& parent_feature, int timeout_ms);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const myo::Pose& pose) override;
+                      const core::Pose& pose) override;
   virtual void onPeriodic(myo::Myo* myo) override;
 
  private:
@@ -43,7 +44,7 @@ Debounce<ParentFeature>::Debounce(ParentFeature& parent_feature, int timeout_ms)
 
 template <class ParentFeature>
 void Debounce<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
-                                     const myo::Pose& pose) {
+                                     const core::Pose& pose) {
   last_pose_ = static_cast<const ParentPose&>(pose);
   last_pose_time_.tick();
   // Don't debounce doubleTaps because of their uniqely short duration.
