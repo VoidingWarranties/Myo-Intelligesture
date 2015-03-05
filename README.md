@@ -37,9 +37,9 @@ child feature's constructor or more conveniently the feature's factory function.
 
 Here's a simple example of a feature tree. Try it for yourself!
 ```c++
-RootFeature root_feature;
-auto debounce = make_debounce(root_feature);
-auto example = make_example(debounce);
+features::RootFeature root_feature;
+features::filters::Debounce debounce(root_feature);
+ExampleFeature example(debounce);
 ```
 
 Often one feature, let's call it feature_a, needs access to the non-virtual
@@ -48,11 +48,11 @@ passing in feature_b to feature_a's constructor. For example, OrientationPoses
 needs an Orientation feature. Note that it is not important where the features
 are relative to each other in the tree.
 ```c++
-RootFeature root_feature;
-auto orientation = make_orientation(root_feature);
-auto debounce = make_debounce(root_feature);
-auto orientation_poses = make_orientation_poses(debounce, orientation);
-auto example = make_example(orientation_poses);
+features::RootFeature root_feature;
+features::Orientation orientation(root_feature);
+features::filters::Debounce debounce(root_feature);
+features::OrientationPoses orientation_poses(debounce, orientation);
+ExampleFeature example(orientation_poses);
 ```
 
 Explanation

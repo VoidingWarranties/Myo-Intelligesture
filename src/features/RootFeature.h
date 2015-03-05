@@ -9,8 +9,6 @@ namespace features {
 class RootFeature : public myo::DeviceListener,
                     public core::DeviceListenerWrapper {
  public:
-  typedef core::Pose Pose;
-
   virtual void onPair(myo::Myo* myo, uint64_t timestamp,
                       myo::FirmwareVersion firmware_version) override {
     core::DeviceListenerWrapper::onPair(myo, timestamp, firmware_version);
@@ -34,7 +32,8 @@ class RootFeature : public myo::DeviceListener,
   }
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                       myo::Pose pose) override {
-    core::DeviceListenerWrapper::onPose(myo, timestamp, pose);
+    std::shared_ptr<core::Pose> shared_pose(new core::Pose(pose));
+    core::DeviceListenerWrapper::onPose(myo, timestamp, shared_pose);
   }
   virtual void onOrientationData(
       myo::Myo* myo, uint64_t timestamp,

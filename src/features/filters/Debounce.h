@@ -14,61 +14,48 @@
 
 namespace features {
 namespace filters {
-template <class ParentFeature>
 class Debounce : public core::DeviceListenerWrapper {
-  typedef typename ParentFeature::Pose ParentPose;
-
  public:
-  typedef ParentPose Pose;
-
-  Debounce(ParentFeature& parent_feature, int timeout_ms);
+  Debounce(core::DeviceListenerWrapper& parent_feature, int timeout_ms = 10);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const core::Pose& pose) override;
+                      const std::shared_ptr<core::Pose>& pose) override;
   virtual void onPeriodic(myo::Myo* myo) override;
 
  private:
   int timeout_ms_;
-  ParentPose last_pose_, last_debounced_pose_;
+  std::shared_ptr<core::Pose> last_pose_, last_debounced_pose_;
   BasicTimer last_pose_time_;
 };
 
-template <class ParentFeature>
-Debounce<ParentFeature>::Debounce(ParentFeature& parent_feature, int timeout_ms)
+Debounce::Debounce(core::DeviceListenerWrapper& parent_feature, int timeout_ms)
     : timeout_ms_(timeout_ms),
-      last_pose_(ParentPose::rest),
+      last_pose_(new core::Pose(core::Pose::rest)),
       last_debounced_pose_(last_pose_) {
   parent_feature.addChildFeature(this);
   last_pose_time_.tick();
 }
 
-template <class ParentFeature>
-void Debounce<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
-                                     const core::Pose& pose) {
-  last_pose_ = static_cast<const ParentPose&>(pose);
+void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
+                      const std::shared_ptr<core::Pose>& pose) {
+  last_pose_ = pose;
   last_pose_time_.tick();
   // Don't debounce doubleTaps because of their uniqely short duration.
-  if (last_pose_ == ParentPose::doubleTap) {
+  if (*last_pose_ == core::Pose::doubleTap) {
     last_debounced_pose_ = last_pose_;
-    core::DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
+    core::DeviceListenerWrapper::onPose(myo, 0, last_pose_);
   }
 }
 
-template <class ParentFeature>
-void Debounce<ParentFeature>::onPeriodic(myo::Myo* myo) {
+void Debounce::onPeriodic(myo::Myo* myo) {
   uint64_t passed_milliseconds = last_pose_time_.millisecondsSinceTick();
-  if (passed_milliseconds > timeout_ms_ && last_pose_ != last_debounced_pose_) {
+  if (passed_milliseconds > timeout_ms_ &&
+      *last_pose_ != *last_debounced_pose_) {
     last_debounced_pose_ = last_pose_;
     last_pose_time_.tick();
-    core::DeviceListenerWrapper::onPose(myo, 0, Pose(last_pose_));
+    core::DeviceListenerWrapper::onPose(myo, 0, last_pose_);
   }
   core::DeviceListenerWrapper::onPeriodic(myo);
-}
-
-template <class ParentFeature>
-Debounce<ParentFeature> make_debounce(ParentFeature& parent_feature,
-                                      int timeout_ms = 10) {
-  return Debounce<ParentFeature>(parent_feature, timeout_ms);
 }
 }
 }

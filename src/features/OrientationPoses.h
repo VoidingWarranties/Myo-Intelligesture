@@ -14,18 +14,15 @@
 #include "Orientation.h"
 
 namespace features {
-template <class ParentFeature>
 class OrientationPoses : public core::DeviceListenerWrapper {
-  typedef typename ParentFeature::Pose ParentPose;
-
  public:
-  class Pose : public ParentPose {
+  class Pose : public core::Pose {
    public:
     enum Type { waveUp, waveDown, unknown };
 
     Pose(Type type);
-    Pose(typename ParentPose::Type type);
-    Pose(const ParentPose& pose);
+    Pose(typename core::Pose::Type type);
+    Pose(const core::Pose& pose);
 
     virtual std::string toString() const override;
 
@@ -33,83 +30,76 @@ class OrientationPoses : public core::DeviceListenerWrapper {
     Type type_;
   };
 
-  OrientationPoses(ParentFeature& parent_feature, Orientation& orientation);
+  OrientationPoses(core::DeviceListenerWrapper& parent_feature,
+                   Orientation& orientation);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const core::Pose& pose) override;
+                      const std::shared_ptr<core::Pose>& pose) override;
 
  private:
   Orientation& orientation_;
 };
 
-template <class ParentFeature>
-OrientationPoses<ParentFeature>::Pose::Pose(Type type)
-    : ParentPose(), type_(type) {}
+OrientationPoses::Pose::Pose(Type type) : core::Pose(), type_(type) {}
 
-template <class ParentFeature>
-OrientationPoses<ParentFeature>::Pose::Pose(typename ParentPose::Type type)
-    : ParentPose(type), type_(unknown) {}
+OrientationPoses::Pose::Pose(typename core::Pose::Type type)
+    : core::Pose(type), type_(unknown) {}
 
-template <class ParentFeature>
-OrientationPoses<ParentFeature>::Pose::Pose(const ParentPose& pose)
-    : ParentPose(pose), type_(unknown) {}
+OrientationPoses::Pose::Pose(const core::Pose& pose)
+    : core::Pose(pose), type_(unknown) {}
 
-template <class ParentFeature>
-std::string OrientationPoses<ParentFeature>::Pose::toString() const {
+std::string OrientationPoses::Pose::toString() const {
   switch (type_) {
     case waveUp:
       return "waveUp";
     case waveDown:
       return "waveDown";
     default:
-      return ParentPose::toString();
+      return core::Pose::toString();
   }
 }
 
-template <class ParentFeature>
-OrientationPoses<ParentFeature>::OrientationPoses(ParentFeature& parent_feature,
-                                                  Orientation& orientation)
+OrientationPoses::OrientationPoses(core::DeviceListenerWrapper& parent_feature,
+                                   Orientation& orientation)
     : orientation_(orientation) {
   parent_feature.addChildFeature(this);
 }
 
-template <class ParentFeature>
-void OrientationPoses<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
-                                             const core::Pose& pose) {
-  ParentPose parent_pose = static_cast<const ParentPose&>(pose);
+void OrientationPoses::onPose(myo::Myo* myo, uint64_t timestamp,
+                              const std::shared_ptr<core::Pose>& pose) {
   Orientation::Wrist wrist_orientation = orientation_.getWristOrientation();
-  if (parent_pose == ParentPose::waveIn) {
+  if (*pose == core::Pose::waveIn) {
+    std::shared_ptr<core::Pose> new_pose;
     switch (wrist_orientation) {
       case Orientation::Wrist::palmDown:
-        core::DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveDown));
+        new_pose.reset(new Pose(Pose::waveDown));
         break;
       case Orientation::Wrist::palmUp:
-        core::DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveUp));
+        new_pose.reset(new Pose(Pose::waveUp));
         break;
       default:
-        core::DeviceListenerWrapper::onPose(myo, 0, Pose(ParentPose::waveIn));
-        break;
+        core::DeviceListenerWrapper::onPose(myo, 0, pose);
+        // Return so that no other poses are emitted.
+        return;
     }
-  } else if (parent_pose == ParentPose::waveOut) {
+    core::DeviceListenerWrapper::onPose(myo, 0, new_pose);
+  } else if (*pose == core::Pose::waveOut) {
+    std::shared_ptr<core::Pose> new_pose;
     switch (wrist_orientation) {
       case Orientation::Wrist::palmDown:
-        core::DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveUp));
+        new_pose.reset(new Pose(Pose::waveUp));
         break;
       case Orientation::Wrist::palmUp:
-        core::DeviceListenerWrapper::onPose(myo, 0, Pose(Pose::waveDown));
+        new_pose.reset(new Pose(Pose::waveDown));
         break;
       default:
-        core::DeviceListenerWrapper::onPose(myo, 0, Pose(ParentPose::waveOut));
-        break;
+        core::DeviceListenerWrapper::onPose(myo, 0, pose);
+        // Return so that no other poses are emitted.
+        return;
     }
+    core::DeviceListenerWrapper::onPose(myo, 0, new_pose);
   } else {
-    core::DeviceListenerWrapper::onPose(myo, 0, Pose(parent_pose));
+    core::DeviceListenerWrapper::onPose(myo, 0, pose);
   }
-}
-
-template <class ParentFeature>
-OrientationPoses<ParentFeature> make_orientation_poses(
-    ParentFeature& parent_feature, Orientation& orientation) {
-  return OrientationPoses<ParentFeature>(parent_feature, orientation);
 }
 }

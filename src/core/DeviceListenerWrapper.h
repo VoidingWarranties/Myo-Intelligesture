@@ -58,7 +58,7 @@ class DeviceListenerWrapper {
     }
   }
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const core::Pose& pose) {
+                      const std::shared_ptr<core::Pose>& pose) {
     for (auto feature : child_features_) {
       feature->onPose(myo, timestamp, pose);
     }

@@ -28,11 +28,5 @@ ExponentialMovingAverage::ExponentialMovingAverage(
 float ExponentialMovingAverage::Update(float new_value, float old_value) {
   return (alpha_ * new_value) + ((1 - alpha_) * old_value);
 }
-
-ExponentialMovingAverage make_exponential_moving_average(
-    core::DeviceListenerWrapper& parent_feature,
-    ExponentialMovingAverage::DataFlags flags, float alpha) {
-  return ExponentialMovingAverage(parent_feature, flags, alpha);
-}
 }
 }

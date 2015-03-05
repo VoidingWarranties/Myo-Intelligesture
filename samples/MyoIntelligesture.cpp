@@ -18,21 +18,19 @@ int main() {
     }
 
     features::RootFeature root_feature;
-    auto debounce = features::filters::make_debounce(root_feature);
+    features::filters::Debounce debounce(root_feature);
     // This filter averages only orientation data.
-    auto moving_average = features::filters::make_moving_average(
+    features::filters::MovingAverage moving_average(
         root_feature, features::filters::MovingAverage::OrientationData, 10);
     // This filter averages only accelerometer and gyroscope data.
-    auto exponential_moving_average =
-        features::filters::make_exponential_moving_average(
-            moving_average,
-            features::filters::ExponentialMovingAverage::AccelerometerData |
-                features::filters::ExponentialMovingAverage::GyroscopeData,
-            0.2);
-    auto orientation = features::make_orientation(exponential_moving_average);
-    auto orientation_poses =
-        features::make_orientation_poses(debounce, orientation);
-    auto example = make_example(orientation_poses, orientation);
+    features::filters::ExponentialMovingAverage exponential_moving_average(
+        moving_average,
+        features::filters::ExponentialMovingAverage::AccelerometerData |
+            features::filters::ExponentialMovingAverage::GyroscopeData,
+        0.2);
+    features::Orientation orientation(exponential_moving_average);
+    features::OrientationPoses orientation_poses(debounce, orientation);
+    ExampleFeature example_feature(orientation_poses, orientation);
 
     hub.addListener(&root_feature);
 

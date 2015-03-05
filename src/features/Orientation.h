@@ -83,10 +83,4 @@ typename Orientation::Wrist Orientation::getWristOrientation() const {
     return Wrist::palmSideways;
   }
 }
-
-// This factory function is no longer necessary now that Orientation is not
-// templated, but it is kept here for consistency.
-Orientation make_orientation(core::DeviceListenerWrapper& parent_feature) {
-  return Orientation(parent_feature);
-}
 }

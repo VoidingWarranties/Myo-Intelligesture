@@ -136,11 +136,5 @@ myo::Vector3<float> MovingAverage::RecalculateGyration(
   }
   return gyroscope_avg_.get();
 }
-
-MovingAverage make_moving_average(core::DeviceListenerWrapper& parent_feature,
-                                  MovingAverage::DataFlags flags,
-                                  int window_size) {
-  return MovingAverage(parent_feature, flags, window_size);
-}
 }
 }

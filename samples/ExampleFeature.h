@@ -6,40 +6,28 @@
 #include "../src/core/Pose.h"
 #include "../src/features/Orientation.h"
 
-template <class ParentFeature>
 class ExampleFeature : public core::DeviceListenerWrapper {
-  typedef typename ParentFeature::Pose ParentPose;
-
  public:
-  ExampleFeature(ParentFeature& parent_feature,
+  ExampleFeature(core::DeviceListenerWrapper& parent_feature,
                  features::Orientation& orientation);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const core::Pose& pose) override;
+                      const std::shared_ptr<core::Pose>& pose) override;
 
  private:
   features::Orientation& orientation_;
 };
 
-template <class ParentFeature>
-ExampleFeature<ParentFeature>::ExampleFeature(
-    ParentFeature& parent_feature, features::Orientation& orientation)
+ExampleFeature::ExampleFeature(core::DeviceListenerWrapper& parent_feature,
+                               features::Orientation& orientation)
     : orientation_(orientation) {
   parent_feature.addChildFeature(this);
 }
 
-template <class ParentFeature>
-void ExampleFeature<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
-                                           const core::Pose& pose) {
-  ParentPose new_pose = static_cast<const ParentPose&>(pose);
-  if (new_pose == ParentPose::doubleTap) {
+void ExampleFeature::onPose(myo::Myo* myo, uint64_t timestamp,
+                            const std::shared_ptr<core::Pose>& pose) {
+  if (*pose == core::Pose::doubleTap) {
     orientation_.calibrateOrientation();
   }
-  std::cout << new_pose << std::endl;
-}
-
-template <class ParentFeature>
-ExampleFeature<ParentFeature> make_example(ParentFeature& parent_feature,
-                                           features::Orientation& orientation) {
-  return ExampleFeature<ParentFeature>(parent_feature, orientation);
+  std::cout << *pose << std::endl;
 }
