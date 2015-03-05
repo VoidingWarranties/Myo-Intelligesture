@@ -60,7 +60,7 @@ float Orientation::getRelativeWristAngle() const {
       mid_, rotation_, core::OrientationUtility::QuaternionToRoll);
 }
 
-typename Orientation::Arm Orientation::getArmOrientation() const {
+Orientation::Arm Orientation::getArmOrientation() const {
   float pitch_diff = core::OrientationUtility::RelativeOrientation(
       mid_, rotation_, core::OrientationUtility::QuaternionToPitch);
   if (pitch_diff < -1) {
@@ -72,7 +72,7 @@ typename Orientation::Arm Orientation::getArmOrientation() const {
   }
 }
 
-typename Orientation::Wrist Orientation::getWristOrientation() const {
+Orientation::Wrist Orientation::getWristOrientation() const {
   float roll_diff = core::OrientationUtility::RelativeOrientation(
       mid_, rotation_, core::OrientationUtility::QuaternionToRoll);
   if (roll_diff < -0.2) {

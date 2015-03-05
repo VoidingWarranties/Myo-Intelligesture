@@ -21,7 +21,7 @@ class OrientationPoses : public core::DeviceListenerWrapper {
     enum Type { waveUp, waveDown, unknown };
 
     Pose(Type type);
-    Pose(typename core::Pose::Type type);
+    Pose(core::Pose::Type type);
     Pose(const core::Pose& pose);
 
     virtual std::string toString() const override;
@@ -42,7 +42,7 @@ class OrientationPoses : public core::DeviceListenerWrapper {
 
 OrientationPoses::Pose::Pose(Type type) : core::Pose(), type_(type) {}
 
-OrientationPoses::Pose::Pose(typename core::Pose::Type type)
+OrientationPoses::Pose::Pose(core::Pose::Type type)
     : core::Pose(type), type_(unknown) {}
 
 OrientationPoses::Pose::Pose(const core::Pose& pose)
