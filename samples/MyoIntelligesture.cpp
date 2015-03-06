@@ -7,6 +7,7 @@
 #include "../src/features/OrientationPoses.h"
 #include "../src/features/filters/ExponentialMovingAverage.h"
 #include "../src/features/filters/MovingAverage.h"
+#include "../src/features/gestures/PoseGesturesV2.h"
 #include "ExampleFeature.h"
 
 int main() {
@@ -30,7 +31,8 @@ int main() {
         0.2);
     features::Orientation orientation(exponential_moving_average);
     features::OrientationPoses orientation_poses(debounce, orientation);
-    ExampleFeature example_feature(orientation_poses, orientation);
+    features::gestures::PoseGestures pose_gestures(orientation_poses);
+    ExampleFeature example_feature(pose_gestures, orientation);
 
     hub.addListener(&root_feature);
 

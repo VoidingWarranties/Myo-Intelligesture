@@ -9,6 +9,7 @@
 #include <myo/myo.hpp>
 
 #include "Pose.h"
+#include "Gesture.h"
 
 namespace core {
 class DeviceListenerWrapper {
@@ -61,6 +62,12 @@ class DeviceListenerWrapper {
                       const std::shared_ptr<core::Pose>& pose) {
     for (auto feature : child_features_) {
       feature->onPose(myo, timestamp, pose);
+    }
+  }
+  virtual void onGesture(myo::Myo* myo, uint64_t timestamp,
+                         const std::shared_ptr<core::Gesture>& gesture) {
+    for (auto feature : child_features_) {
+      feature->onGesture(myo, timestamp, gesture);
     }
   }
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,

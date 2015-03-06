@@ -9,176 +9,113 @@
 #include <unordered_map>
 
 #include "../../core/DeviceListenerWrapper.h"
+#include "../../core/Gesture.h"
 #include "../../../lib/Basic-Timer/BasicTimer.h"
 
 namespace features {
 namespace gestures {
-template <class ParentFeature>
 class PoseGestures : public core::DeviceListenerWrapper {
-  typedef typename ParentFeature::Pose ParentPose;
-
  public:
-  class Pose : public ParentPose {
+  class Gesture : public core::Gesture {
    public:
-    enum GestureType { none, singleClick, doubleClick, hold };
+    enum Type { singleClick, doubleClick, hold, none };
 
-    Pose(GestureType gesture = none);
-    Pose(typename ParentPose::Type type, GestureType gesture = none);
-    Pose(const ParentPose& pose, GestureType gesture = none);
+    Gesture(Type type = none);
+    Gesture(const std::shared_ptr<core::Pose>& pose, Type type);
 
-    std::string toString(bool gestureInfo = true) const;
-    bool operator==(const Pose& other) const;
-    bool operator!=(const Pose& other) const;
-
-    friend std::ostream& operator<<(
-        std::ostream& out, const typename PoseGestures<ParentFeature>::Pose& pose) {
-      return out << pose.toString();
-    }
-    friend bool operator==(const Pose& lhs, GestureType rhs) {
-      return lhs.gesture_ == rhs;
-    }
-    friend bool operator==(GestureType lhs, const Pose& rhs) {
-      return Pose::operator==(rhs, lhs);
-    }
-    friend bool operator!=(const Pose& lhs, GestureType rhs) {
-      return lhs.gesture_ != rhs;
-    }
-    friend bool operator!=(GestureType lhs, const Pose& rhs) {
-      return Pose::operator!=(rhs, lhs);
-    }
+    virtual std::string toString() const override;
 
    private:
-    GestureType gesture_;
+    Type type_;
   };
 
-  PoseGestures(ParentFeature& parent_feature, int click_max_hold_min,
-               int double_click_timeout);
+  PoseGestures(core::DeviceListenerWrapper& parent_feature,
+               int click_max_hold_min = 1000, int double_click_timeout = 750);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const myo::Pose& pose) override;
+                      const std::shared_ptr<core::Pose>& pose) override;
   virtual void onPeriodic(myo::Myo* myo) override;
 
  private:
   int click_max_hold_min_, double_click_timeout_;
-  Pose last_pose_;
-  std::unordered_map<std::string, BasicTimer> last_pose_times_;
+  std::unordered_map<std::string, BasicTimer> gesture_timers_;
+  std::shared_ptr<Gesture> last_gesture_;
 };
 
-template <class ParentFeature>
-PoseGestures<ParentFeature>::Pose::Pose(GestureType gesture)
-    : ParentPose(), gesture_(gesture) {}
+PoseGestures::Gesture::Gesture(Type type) : core::Gesture(), type_(type) {}
 
-template <class ParentFeature>
-PoseGestures<ParentFeature>::Pose::Pose(typename ParentPose::Type type,
-                                        GestureType gesture)
-    : ParentPose(type), gesture_(gesture) {}
+PoseGestures::Gesture::Gesture(const std::shared_ptr<core::Pose>& pose,
+                               Type type)
+    : core::Gesture(pose), type_(type) {}
 
-template <class ParentFeature>
-PoseGestures<ParentFeature>::Pose::Pose(const ParentPose& pose,
-                                        GestureType gesture)
-    : ParentPose(pose), gesture_(gesture) {}
-
-template <class ParentFeature>
-std::string PoseGestures<ParentFeature>::Pose::toString(
-    bool gestureInfo) const {
-  std::string result;
-  result = ParentPose::toString();
-  if (gestureInfo) {
-    result += ", ";
-    switch (gesture_) {
-      case none:
-        result += "none";
-        break;
-      case singleClick:
-        result += "singleClick";
-        break;
-      case doubleClick:
-        result += "doubleClick";
-        break;
-      case hold:
-        result += "hold";
-        break;
-      default:
-        result += "unknown";
-        break;
-    }
+std::string PoseGestures::Gesture::toString() const {
+  switch (type_) {
+    case singleClick:
+      return "singleClick";
+    case doubleClick:
+      return "doubleClick";
+    case hold:
+      return "hold";
+    case none:
+      return "none";
+    default:
+      return core::Gesture::toString();
   }
-  return result;
 }
 
-template <class ParentFeature>
-bool PoseGestures<ParentFeature>::Pose::operator==(const Pose& other) const {
-  return this->gesture_ == other.gesture_ && ParentPose::operator==(other);
-}
-
-template <class ParentFeature>
-bool PoseGestures<ParentFeature>::Pose::operator!=(const Pose& other) const {
-  return this->gesture_ != other.gesture_ || ParentPose::operator!=(other);
-}
-
-template <class ParentFeature>
-PoseGestures<ParentFeature>::PoseGestures(ParentFeature& parent_feature,
-                                          int click_max_hold_min,
-                                          int double_click_timeout)
+PoseGestures::PoseGestures(core::DeviceListenerWrapper& parent_feature,
+                           int click_max_hold_min, int double_click_timeout)
     : click_max_hold_min_(click_max_hold_min),
-      double_click_timeout_(double_click_timeout) {
+      double_click_timeout_(double_click_timeout),
+      last_gesture_(new Gesture()) {
   parent_feature.addChildFeature(this);
 }
 
-template <class ParentFeature>
-void PoseGestures<ParentFeature>::onPose(myo::Myo* myo, uint64_t timestamp,
-                                         const myo::Pose& pose) {
-  ParentPose parent_pose = static_cast<const ParentPose&>(pose);
-
+void PoseGestures::onPose(myo::Myo* myo, uint64_t timestamp,
+                          const std::shared_ptr<core::Pose>& pose) {
   BasicTimer now;
   now.tick();
 
-  Pose current_pose;
-  Pose last_pose_gesture_none = Pose(last_pose_, Pose::none);
-  Pose last_pose_gesture_singleClick = Pose(last_pose_, Pose::singleClick);
-
-  if (last_pose_times_.count(last_pose_gesture_none.toString()) > 0 &&
-      last_pose_times_[last_pose_gesture_none.toString()]
+  if (gesture_timers_.count(last_gesture_->toDescriptiveString()) > 0 &&
+      gesture_timers_[last_gesture_->toDescriptiveString()]
               .millisecondsSinceTick() <= click_max_hold_min_) {
-    if (last_pose_times_.count(last_pose_gesture_singleClick.toString()) > 0 &&
+    std::shared_ptr<core::Gesture> current_gesture;
+    if (gesture_timers_.count(
+            Gesture(last_gesture_->AssociatedPose(), Gesture::singleClick)
+                .toDescriptiveString()) > 0 &&
         millisecondsBetweenTicks(
-            last_pose_times_[last_pose_gesture_singleClick.toString()],
-            last_pose_times_[last_pose_gesture_none.toString()]) <=
+            gesture_timers_[Gesture(last_gesture_->AssociatedPose(),
+                                    Gesture::singleClick)
+                                .toDescriptiveString()],
+            gesture_timers_[last_gesture_->toDescriptiveString()]) <=
             double_click_timeout_) {
-      // Double click. Suppresses the current single click.
-      current_pose = Pose(last_pose_, Pose::doubleClick);
+      // Double click. Suppress the current single click.
+      current_gesture.reset(
+          new Gesture(last_gesture_->AssociatedPose(), Gesture::doubleClick));
     } else {
       // Single click.
-      current_pose = Pose(last_pose_, Pose::singleClick);
+      current_gesture.reset(
+          new Gesture(last_gesture_->AssociatedPose(), Gesture::singleClick));
     }
-    last_pose_times_[current_pose.toString()] = now;
-    core::DeviceListenerWrapper::onPose(myo, 0, current_pose);
-  } else {
-    current_pose = Pose(parent_pose, Pose::none);
+    gesture_timers_[current_gesture->toDescriptiveString()] = now;
+    core::DeviceListenerWrapper::onGesture(myo, timestamp, current_gesture);
   }
 
-  last_pose_ = Pose(parent_pose, Pose::none);
-  last_pose_times_[last_pose_.toString()] = now;
-  core::DeviceListenerWrapper::onPose(myo, 0, last_pose_);
+  last_gesture_.reset(new Gesture(pose, Gesture::none));
+  gesture_timers_[last_gesture_->toDescriptiveString()] = now;
+  core::DeviceListenerWrapper::onPose(myo, timestamp, pose);
 }
 
-template <class ParentFeature>
-void PoseGestures<ParentFeature>::onPeriodic(myo::Myo* myo) {
-  if (last_pose_ != Pose::hold &&
-      last_pose_times_.count(Pose(last_pose_, Pose::none).toString()) > 0 &&
-      last_pose_times_[Pose(last_pose_, Pose::none).toString()]
-              .millisecondsSinceTick() > click_max_hold_min_) {
-    last_pose_ = Pose(last_pose_, Pose::hold);
-    core::DeviceListenerWrapper::onPose(myo, 0, last_pose_);
+void PoseGestures::onPeriodic(myo::Myo* myo) {
+  if (*last_gesture_ != Gesture(Gesture::hold) &&
+      gesture_timers_.count(Gesture(last_gesture_->AssociatedPose(),
+                                    Gesture::none).toDescriptiveString()) > 0 &&
+      gesture_timers_[Gesture(last_gesture_->AssociatedPose(), Gesture::none)
+                          .toDescriptiveString()].millisecondsSinceTick() >
+          click_max_hold_min_) {
+    last_gesture_.reset(new Gesture(last_gesture_->AssociatedPose(), Gesture::hold));
+    core::DeviceListenerWrapper::onGesture(myo, 0, last_gesture_);
   }
-}
-
-template <class ParentFeature>
-PoseGestures<ParentFeature> make_pose_gestures(ParentFeature& parent_feature,
-                                               int click_max_hold_min = 1000,
-                                               int double_click_timeout = 750) {
-  return PoseGestures<ParentFeature>(parent_feature, click_max_hold_min,
-                                     double_click_timeout);
 }
 }
 }

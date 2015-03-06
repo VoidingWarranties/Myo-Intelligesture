@@ -13,6 +13,9 @@ class ExampleFeature : public core::DeviceListenerWrapper {
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                       const std::shared_ptr<core::Pose>& pose) override;
+  virtual void onGesture(
+      myo::Myo* myo, uint64_t timestamp,
+      const std::shared_ptr<core::Gesture>& gesture) override;
 
  private:
   features::Orientation& orientation_;
@@ -29,5 +32,9 @@ void ExampleFeature::onPose(myo::Myo* myo, uint64_t timestamp,
   if (*pose == core::Pose::doubleTap) {
     orientation_.calibrateOrientation();
   }
-  std::cout << *pose << std::endl;
+}
+
+void ExampleFeature::onGesture(myo::Myo* myo, uint64_t timestamp,
+               const std::shared_ptr<core::Gesture>& gesture) {
+  std::cout << gesture->toDescriptiveString() << std::endl;
 }
