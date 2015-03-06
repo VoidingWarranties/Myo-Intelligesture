@@ -7,7 +7,7 @@
 #include "../src/features/OrientationPoses.h"
 #include "../src/features/filters/ExponentialMovingAverage.h"
 #include "../src/features/filters/MovingAverage.h"
-#include "../src/features/gestures/PoseGesturesV2.h"
+#include "../src/features/gestures/PoseGestures.h"
 #include "ExampleFeature.h"
 
 int main() {
