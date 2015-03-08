@@ -33,7 +33,16 @@ class Orientation : public core::DeviceListenerWrapper {
 
  private:
   myo::Quaternion<float> rotation_, mid_;
+  static const float minArmAngle;
+  static const float maxArmAngle;
+  static const float minWristAngle;
+  static const float maxWristAngle;
 };
+
+const float Orientation::minArmAngle = -1;
+const float Orientation::maxArmAngle = 1;
+const float Orientation::minWristAngle = -0.2;
+const float Orientation::maxWristAngle = 0.3;
 
 Orientation::Orientation(core::DeviceListenerWrapper& parent_feature)
     : rotation_(), mid_() {
@@ -63,9 +72,9 @@ float Orientation::getRelativeWristAngle() const {
 Orientation::Arm Orientation::getArmOrientation() const {
   float pitch_diff = core::OrientationUtility::RelativeOrientation(
       mid_, rotation_, core::OrientationUtility::QuaternionToPitch);
-  if (pitch_diff < -1) {
+  if (pitch_diff < minArmAngle) {
     return Arm::forearmUp;
-  } else if (pitch_diff > 1) {
+  } else if (pitch_diff > maxArmAngle) {
     return Arm::forearmDown;
   } else {
     return Arm::forearmLevel;
@@ -75,9 +84,9 @@ Orientation::Arm Orientation::getArmOrientation() const {
 Orientation::Wrist Orientation::getWristOrientation() const {
   float roll_diff = core::OrientationUtility::RelativeOrientation(
       mid_, rotation_, core::OrientationUtility::QuaternionToRoll);
-  if (roll_diff < -0.2) {
+  if (roll_diff < minWristAngle) {
     return Wrist::palmDown;
-  } else if (roll_diff > 0.3) {
+  } else if (roll_diff > maxWristAngle) {
     return Wrist::palmUp;
   } else {
     return Wrist::palmSideways;
