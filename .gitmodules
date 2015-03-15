@@ -1,3 +1,6 @@
 [submodule "lib/Basic-Timer"]
 	path = lib/Basic-Timer
 	url = https://github.com/VoidingWarranties/Basic-Timer.git
+[submodule "lib/NDRecognizer"]
+	path = lib/NDRecognizer
+	url = https://github.com/VoidingWarranties/N-D-1-Recognizer.git
