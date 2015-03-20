@@ -79,3 +79,5 @@ Dependencies
 - [Boost](http://www.boost.org/)
 - [Basic-Timer](https://github.com/VoidingWarranties/Basic-Timer)
 - [N-D $1 Recognizer](https://github.com/VoidingWarranties/N-D-1-Recognizer)
+- [MyoSimulator](https://github.com/VoidingWarranties/MyoSimulator)
+  (optional - only required for tests)
