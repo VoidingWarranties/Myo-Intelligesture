@@ -53,5 +53,9 @@ class RootFeature : public myo::DeviceListener,
   virtual void onRssi(myo::Myo* myo, uint64_t timestamp, int8_t rssi) override {
     core::DeviceListenerWrapper::onRssi(myo, timestamp, rssi);
   }
+  virtual void onEmgData(myo::Myo* myo, uint64_t timestamp,
+                         const int8_t* emg) override {
+    core::DeviceListenerWrapper::onEmgData(myo, timestamp, emg);
+  }
 };
 }

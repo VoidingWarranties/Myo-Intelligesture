@@ -93,6 +93,12 @@ class DeviceListenerWrapper {
       feature->onRssi(myo, timestamp, rssi);
     }
   }
+  virtual void onEmgData(myo::Myo* myo, uint64_t timestamp,
+                         const int8_t* emg) {
+    for (auto feature : child_features_) {
+      feature->onEmgData(myo, timestamp, emg);
+    }
+  }
   virtual void onPeriodic(myo::Myo* myo) {
     for (auto feature : child_features_) {
       feature->onPeriodic(myo);
