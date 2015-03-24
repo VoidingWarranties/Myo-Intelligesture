@@ -42,7 +42,10 @@ Debounce::Debounce(core::DeviceListenerWrapper& parent_feature, int timeout_ms)
 
 void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
                       const std::shared_ptr<core::Pose>& pose) {
-  debounceLastPose(myo);
+  if (timestamp - last_pose_timestamp_ > 1000 * timeout_ms_ &&
+      *last_pose_ != *last_debounced_pose_) {
+    debounceLastPose(myo);
+  }
   last_pose_ = pose;
   last_pose_time_.tick();
   last_pose_timestamp_ = timestamp;
@@ -54,17 +57,17 @@ void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
 }
 
 void Debounce::onPeriodic(myo::Myo* myo) {
-  debounceLastPose(myo);
+  if (last_pose_time_.millisecondsSinceTick() > timeout_ms_ &&
+      *last_pose_ != *last_debounced_pose_) {
+    debounceLastPose(myo);
+  }
   core::DeviceListenerWrapper::onPeriodic(myo);
 }
 
 void Debounce::debounceLastPose(myo::Myo* myo) {
-  if (last_pose_time_.millisecondsSinceTick() > timeout_ms_ &&
-      *last_pose_ != *last_debounced_pose_) {
-    last_debounced_pose_ = last_pose_;
-    last_pose_time_.tick();
-    core::DeviceListenerWrapper::onPose(myo, last_pose_timestamp_, last_pose_);
-  }
+  last_debounced_pose_ = last_pose_;
+  last_pose_time_.tick();
+  core::DeviceListenerWrapper::onPose(myo, last_pose_timestamp_, last_pose_);
 }
 }
 }
