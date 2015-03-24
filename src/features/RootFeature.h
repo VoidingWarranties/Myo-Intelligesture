@@ -30,6 +30,12 @@ class RootFeature : public myo::DeviceListener,
   virtual void onArmUnsync(myo::Myo* myo, uint64_t timestamp) override {
     core::DeviceListenerWrapper::onArmUnsync(myo, timestamp);
   }
+  virtual void onUnlock(myo::Myo* myo, uint64_t timestamp) override {
+    core::DeviceListenerWrapper::onUnlock(myo, timestamp);
+  }
+  virtual void onLock(myo::Myo* myo, uint64_t timestamp) override {
+    core::DeviceListenerWrapper::onLock(myo, timestamp);
+  }
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                       myo::Pose pose) override {
     std::shared_ptr<core::Pose> shared_pose(new core::Pose(pose));

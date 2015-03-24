@@ -58,6 +58,16 @@ class DeviceListenerWrapper {
       feature->onArmUnsync(myo, timestamp);
     }
   }
+  virtual void onUnlock(myo::Myo* myo, uint64_t timestamp) {
+    for (auto feature : child_features_) {
+      feature->onUnlock(myo, timestamp);
+    }
+  }
+  virtual void onLock(myo::Myo* myo, uint64_t timestamp) {
+    for (auto feature : child_features_) {
+      feature->onLock(myo, timestamp);
+    }
+  }
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
                       const std::shared_ptr<core::Pose>& pose) {
     for (auto feature : child_features_) {
