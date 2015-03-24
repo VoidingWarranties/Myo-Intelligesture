@@ -23,6 +23,8 @@ class Debounce : public core::DeviceListenerWrapper {
   virtual void onPeriodic(myo::Myo* myo) override;
 
  private:
+  void debounceLastPose(myo::Myo* myo);
+
   int timeout_ms_;
   std::shared_ptr<core::Pose> last_pose_, last_debounced_pose_;
   BasicTimer last_pose_time_;
@@ -38,6 +40,7 @@ Debounce::Debounce(core::DeviceListenerWrapper& parent_feature, int timeout_ms)
 
 void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
                       const std::shared_ptr<core::Pose>& pose) {
+  debounceLastPose(myo);
   last_pose_ = pose;
   last_pose_time_.tick();
   // Don't debounce doubleTaps because of their uniqely short duration.
@@ -48,6 +51,11 @@ void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
 }
 
 void Debounce::onPeriodic(myo::Myo* myo) {
+  debounceLastPose(myo);
+  core::DeviceListenerWrapper::onPeriodic(myo);
+}
+
+void Debounce::debounceLastPose(myo::Myo* myo) {
   uint64_t passed_milliseconds = last_pose_time_.millisecondsSinceTick();
   if (passed_milliseconds > timeout_ms_ &&
       *last_pose_ != *last_debounced_pose_) {
@@ -55,7 +63,6 @@ void Debounce::onPeriodic(myo::Myo* myo) {
     last_pose_time_.tick();
     core::DeviceListenerWrapper::onPose(myo, 0, last_pose_);
   }
-  core::DeviceListenerWrapper::onPeriodic(myo);
 }
 }
 }
