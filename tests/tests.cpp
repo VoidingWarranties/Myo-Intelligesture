@@ -62,20 +62,41 @@ void testExponentialMovingAverage() {
   std::map<float, std::string> expected_results;
   expected_results[1.f] =
       "onOrientationData - myo: 0x0 timestamp: 0 rotation: (0, 0, 0, 0)\n"
-      "onOrientationData - myo: 0x0 timestamp: 1 rotation: (1, 1, 1, 1)\n"
-      "onOrientationData - myo: 0x0 timestamp: 2 rotation: (2, 2, 2, 2)\n";
+      "onAccelerometerData - myo: 0x0 timestamp: 1 accel: (0, 0, 0)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 2 gyro: (0, 0, 0)\n"
+      "onOrientationData - myo: 0x0 timestamp: 3 rotation: (1, 1, 1, 1)\n"
+      "onAccelerometerData - myo: 0x0 timestamp: 4 accel: (1, 1, 1)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 5 gyro: (1, 1, 1)\n"
+      "onOrientationData - myo: 0x0 timestamp: 6 rotation: (2, 2, 2, 2)\n"
+      "onAccelerometerData - myo: 0x0 timestamp: 7 accel: (2, 2, 2)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 8 gyro: (2, 2, 2)\n";
   expected_results[0.5f] =
       "onOrientationData - myo: 0x0 timestamp: 0 rotation: (0, 0, 0, 0)\n"
-      "onOrientationData - myo: 0x0 timestamp: 1 rotation: (0.5, 0.5, 0.5, 0.5)\n"
-      "onOrientationData - myo: 0x0 timestamp: 2 rotation: (1.25, 1.25, 1.25, 1.25)\n";
+      "onAccelerometerData - myo: 0x0 timestamp: 1 accel: (0, 0, 0)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 2 gyro: (0, 0, 0)\n"
+      "onOrientationData - myo: 0x0 timestamp: 3 rotation: (0.5, 0.5, 0.5, 0.5)\n"
+      "onAccelerometerData - myo: 0x0 timestamp: 4 accel: (0.5, 0.5, 0.5)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 5 gyro: (0.5, 0.5, 0.5)\n"
+      "onOrientationData - myo: 0x0 timestamp: 6 rotation: (1.25, 1.25, 1.25, 1.25)\n"
+      "onAccelerometerData - myo: 0x0 timestamp: 7 accel: (1.25, 1.25, 1.25)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 8 gyro: (1.25, 1.25, 1.25)\n";
   expected_results[0.25f] =
       "onOrientationData - myo: 0x0 timestamp: 0 rotation: (0, 0, 0, 0)\n"
-      "onOrientationData - myo: 0x0 timestamp: 1 rotation: (0.25, 0.25, 0.25, 0.25)\n"
-      "onOrientationData - myo: 0x0 timestamp: 2 rotation: (0.6875, 0.6875, 0.6875, 0.6875)\n";
+      "onAccelerometerData - myo: 0x0 timestamp: 1 accel: (0, 0, 0)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 2 gyro: (0, 0, 0)\n"
+      "onOrientationData - myo: 0x0 timestamp: 3 rotation: (0.25, 0.25, 0.25, 0.25)\n"
+      "onAccelerometerData - myo: 0x0 timestamp: 4 accel: (0.25, 0.25, 0.25)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 5 gyro: (0.25, 0.25, 0.25)\n"
+      "onOrientationData - myo: 0x0 timestamp: 6 rotation: (0.6875, 0.6875, 0.6875, 0.6875)\n"
+      "onAccelerometerData - myo: 0x0 timestamp: 7 accel: (0.6875, 0.6875, 0.6875)\n"
+      "onGyroscopeData - myo: 0x0 timestamp: 8 gyro: (0.6875, 0.6875, 0.6875)\n";
   for (const auto& alpha : expected_results) {
     features::RootFeature root_feature;
     ExponentialMovingAverage avg(
-        root_feature, ExponentialMovingAverage::OrientationData, alpha.first);
+        root_feature, ExponentialMovingAverage::OrientationData |
+                      ExponentialMovingAverage::AccelerometerData |
+                      ExponentialMovingAverage::GyroscopeData,
+        alpha.first);
     std::string str;
     PrintEvents print_events(avg, str);
 
@@ -85,10 +106,22 @@ void testExponentialMovingAverage() {
     MyoSim::EventLoopGroup elg;
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
         0, 0, myo::Quaternion<float>(0, 0, 0, 0)));
+    elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
+        0, 1, myo::Vector3<float>(0, 0, 0)));
+    elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
+        0, 2, myo::Vector3<float>(0, 0, 0)));
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
-        0, 1, myo::Quaternion<float>(1, 1, 1, 1)));
+        0, 3, myo::Quaternion<float>(1, 1, 1, 1)));
+    elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
+        0, 4, myo::Vector3<float>(1, 1, 1)));
+    elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
+        0, 5, myo::Vector3<float>(1, 1, 1)));
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
-        0, 2, myo::Quaternion<float>(2, 2, 2, 2)));
+        0, 6, myo::Quaternion<float>(2, 2, 2, 2)));
+    elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
+        0, 7, myo::Vector3<float>(2, 2, 2)));
+    elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
+        0, 8, myo::Vector3<float>(2, 2, 2)));
     MyoSim::EventSession event_session;
     event_session.events.push_back(elg);
 
