@@ -13,27 +13,27 @@
 
 #include "PrintEventsFeature.h"
 
-void testDebounce();
-void testExponentialMovingAverage();
-void testMovingAverage();
+void testDebounce(MyoSim::Hub& hub);
+void testExponentialMovingAverage(MyoSim::Hub& hub);
+void testMovingAverage(MyoSim::Hub& hub);
 
 int main() {
-  testDebounce();
-  testExponentialMovingAverage();
-  testMovingAverage();
+  MyoSim::Hub hub("com.voidingwarranties.myo-intelligesture-tests");
+
+  testDebounce(hub);
+  testExponentialMovingAverage(hub);
+  testMovingAverage(hub);
 
   return 0;
 }
 
-void testDebounce() {
+void testDebounce(MyoSim::Hub& hub) {
   for (int debounce_ms : {5, 10, 100}) {
-    auto test_debounce = [debounce_ms](int timestamp_offset) {
+    auto test_debounce = [&hub, debounce_ms](int timestamp_offset) {
       features::RootFeature root_feature;
       features::filters::Debounce debounce(root_feature, debounce_ms);
       std::string str;
       PrintEvents print_events(debounce, str);
-
-      MyoSim::Hub hub("com.voidingwarranties.debounce-test");
       hub.addListener(&root_feature);
 
       MyoSim::EventLoopGroup elg;
@@ -48,6 +48,7 @@ void testDebounce() {
 
       MyoSim::EventPlayer event_player(hub);
       event_player.play(event_session);
+      hub.removeListener(&root_feature);
       return str;
     };
 
@@ -60,7 +61,7 @@ void testDebounce() {
   }
 }
 
-void testExponentialMovingAverage() {
+void testExponentialMovingAverage(MyoSim::Hub& hub) {
   using features::filters::ExponentialMovingAverage;
   std::map<float, std::string> expected_results;
   expected_results[1.f] =
@@ -103,8 +104,6 @@ void testExponentialMovingAverage() {
         alpha.first);
     std::string str;
     PrintEvents print_events(avg, str);
-
-    MyoSim::Hub hub("com.voidingwarranties.exponential-moving-average-test");
     hub.addListener(&root_feature);
 
     MyoSim::EventLoopGroup elg;
@@ -131,12 +130,13 @@ void testExponentialMovingAverage() {
 
     MyoSim::EventPlayer event_player(hub);
     event_player.play(event_session);
+    hub.removeListener(&root_feature);
 
     assert (str == alpha.second);
   }
 }
 
-void testMovingAverage() {
+void testMovingAverage(MyoSim::Hub& hub) {
   using features::filters::MovingAverage;
   std::map<int, std::string> expected_results;
   expected_results[1] =
@@ -178,8 +178,6 @@ void testMovingAverage() {
                       window_size.first);
     std::string str;
     PrintEvents print_events(avg, str);
-
-    MyoSim::Hub hub("com.voidingwarranties.moving-average-test");
     hub.addListener(&root_feature);
 
     MyoSim::EventLoopGroup elg;
@@ -206,6 +204,7 @@ void testMovingAverage() {
 
     MyoSim::EventPlayer event_player(hub);
     event_player.play(event_session);
+    hub.removeListener(&root_feature);
 
     assert (str == window_size.second);
   }
