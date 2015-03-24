@@ -11,6 +11,7 @@ std::ostream& operator<<(std::ostream& out,
   out << ", " << firmware_version.firmwareVersionMinor;
   out << ", " << firmware_version.firmwareVersionPatch;
   out << ", " << firmware_version.firmwareVersionHardwareRev << ")";
+  return out;
 }
 
 std::ostream& operator<<(std::ostream& out,
@@ -19,12 +20,14 @@ std::ostream& operator<<(std::ostream& out,
   out << ", " << quat.y();
   out << ", " << quat.z();
   out << ", " << quat.w() << ")";
+  return out;
 }
 
 std::ostream& operator<<(std::ostream& out, const myo::Vector3<float>& quat) {
   out << "(" << quat.x();
   out << ", " << quat.y();
   out << ", " << quat.z() << ")";
+  return out;
 }
 }
 
