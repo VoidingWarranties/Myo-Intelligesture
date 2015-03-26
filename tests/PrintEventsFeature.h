@@ -29,6 +29,42 @@ std::ostream& operator<<(std::ostream& out, const myo::Vector3<float>& quat) {
   out << ", " << quat.z() << ")";
   return out;
 }
+
+std::ostream& operator<<(std::ostream& out, myo::Arm arm) {
+  switch (arm) {
+    case myo::armLeft:
+      out << "armLeft";
+      break;
+    case myo::armRight:
+      out << "armRight";
+      break;
+    case myo::armUnknown:
+      out << "armUnknown";
+      break;
+    default:
+      out << "unknown";
+      break;
+  }
+  return out;
+}
+
+std::ostream& operator<<(std::ostream& out, myo::XDirection x_direction) {
+  switch (x_direction) {
+    case myo::xDirectionTowardWrist:
+      out << "xDirectionTowardWrist";
+      break;
+    case myo::xDirectionTowardElbow:
+      out << "xDirectionTowardElbow";
+      break;
+    case myo::xDirectionUnknown:
+      out << "xDirectionUnknown";
+      break;
+    default:
+      out << "unknown";
+      break;
+  }
+  return out;
+}
 }
 
 class PrintEvents : public core::DeviceListenerWrapper {
