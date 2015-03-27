@@ -378,23 +378,23 @@ void myoSimTestExponentialMovingAverage(MyoSim::Hub& hub) {
     uint64_t timestamp = 0;
     MyoSim::EventLoopGroup elg;
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
-        timestamp++, 0, myo::Quaternion<float>(0, 0, 0, 0)));
+        0, timestamp++, myo::Quaternion<float>(0, 0, 0, 0)));
     elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
-        timestamp++, 1, myo::Vector3<float>(0, 0, 0)));
+        0, timestamp++, myo::Vector3<float>(0, 0, 0)));
     elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
-        timestamp++, 2, myo::Vector3<float>(0, 0, 0)));
+        0, timestamp++, myo::Vector3<float>(0, 0, 0)));
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
-        timestamp++, 3, myo::Quaternion<float>(1, 1, 1, 1)));
+        0, timestamp++, myo::Quaternion<float>(1, 1, 1, 1)));
     elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
-        timestamp++, 4, myo::Vector3<float>(1, 1, 1)));
+        0, timestamp++, myo::Vector3<float>(1, 1, 1)));
     elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
-        timestamp++, 5, myo::Vector3<float>(1, 1, 1)));
+        0, timestamp++, myo::Vector3<float>(1, 1, 1)));
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
-        timestamp++, 6, myo::Quaternion<float>(2, 2, 2, 2)));
+        0, timestamp++, myo::Quaternion<float>(2, 2, 2, 2)));
     elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
-        timestamp++, 7, myo::Vector3<float>(2, 2, 2)));
+        0, timestamp++, myo::Vector3<float>(2, 2, 2)));
     elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
-        timestamp++, 8, myo::Vector3<float>(2, 2, 2)));
+        0, timestamp++, myo::Vector3<float>(2, 2, 2)));
     MyoSim::EventSession event_session;
     event_session.events.push_back(elg);
 
@@ -453,23 +453,23 @@ void myoSimTestMovingAverage(MyoSim::Hub& hub) {
     uint64_t timestamp = 0;
     MyoSim::EventLoopGroup elg;
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
-        timestamp++, 0, myo::Quaternion<float>(0, 0, 0, 0)));
+        0, timestamp++, myo::Quaternion<float>(0, 0, 0, 0)));
     elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
-        timestamp++, 1, myo::Vector3<float>(0, 0, 0)));
+        0, timestamp++, myo::Vector3<float>(0, 0, 0)));
     elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
-        timestamp++, 2, myo::Vector3<float>(0, 0, 0)));
+        0, timestamp++, myo::Vector3<float>(0, 0, 0)));
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
-        timestamp++, 3, myo::Quaternion<float>(1, 1, 1, 1)));
+        0, timestamp++, myo::Quaternion<float>(1, 1, 1, 1)));
     elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
-        timestamp++, 4, myo::Vector3<float>(1, 1, 1)));
+        0, timestamp++, myo::Vector3<float>(1, 1, 1)));
     elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
-        timestamp++, 5, myo::Vector3<float>(1, 1, 1)));
+        0, timestamp++, myo::Vector3<float>(1, 1, 1)));
     elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
-        timestamp++, 6, myo::Quaternion<float>(2, 2, 2, 2)));
+        0, timestamp++, myo::Quaternion<float>(2, 2, 2, 2)));
     elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
-        timestamp++, 7, myo::Vector3<float>(2, 2, 2)));
+        0, timestamp++, myo::Vector3<float>(2, 2, 2)));
     elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
-        timestamp++, 8, myo::Vector3<float>(2, 2, 2)));
+        0, timestamp++, myo::Vector3<float>(2, 2, 2)));
     MyoSim::EventSession event_session;
     event_session.events.push_back(elg);
 
