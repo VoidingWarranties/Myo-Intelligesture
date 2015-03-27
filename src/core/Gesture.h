@@ -7,10 +7,10 @@
 namespace core {
 class Gesture {
  public:
-  enum Type { unkown };
+  enum Type { unknown };
 
-  Gesture(Type type = unkown);
-  Gesture(const std::shared_ptr<Pose>& pose, Type type = unkown);
+  Gesture(Type type = unknown);
+  Gesture(const std::shared_ptr<Pose>& pose, Type type = unknown);
   virtual ~Gesture() {}
 
   bool operator==(const Gesture& gesture);
@@ -43,7 +43,7 @@ bool Gesture::operator!=(const Gesture& gesture) {
   return this->toString() != gesture.toString();
 }
 
-std::string Gesture::toString() const { return "unkown"; }
+std::string Gesture::toString() const { return "unknown"; }
 
 std::shared_ptr<Pose> Gesture::AssociatedPose() const {
   return associated_pose_;

@@ -6,9 +6,9 @@
 namespace core {
 class Pose {
  public:
-  enum Type { rest, fist, waveIn, waveOut, fingersSpread, doubleTap, unkown };
+  enum Type { rest, fist, waveIn, waveOut, fingersSpread, doubleTap, unknown };
 
-  Pose(Type type = unkown);
+  Pose(Type type = unknown);
   Pose(const myo::Pose& pose);
   virtual ~Pose() {}
 
@@ -44,7 +44,7 @@ Pose::Pose(const myo::Pose& pose) {
       type_ = doubleTap;
       break;
     default:
-      type_ = unkown;
+      type_ = unknown;
       break;
   }
 }
@@ -74,7 +74,7 @@ std::string Pose::toString() const {
     case doubleTap:
       return "doubleTap";
     default:
-      return "unkown";
+      return "unknown";
   }
 }
 
