@@ -247,7 +247,7 @@ void PrintEvents::onRssi(myo::Myo* myo, uint64_t timestamp, int8_t rssi) {
   ss << "onRssi -";
   ss << PRINT_NAME_AND_VAR(myo);
   ss << PRINT_NAME_AND_VAR(timestamp);
-  ss << PRINT_NAME_AND_VAR(rssi);
+  ss << " rssi: " << int(rssi);
   ss << "\n";
   out_ += ss.str();
 }
@@ -255,13 +255,13 @@ void PrintEvents::onRssi(myo::Myo* myo, uint64_t timestamp, int8_t rssi) {
 void PrintEvents::onEmgData(myo::Myo* myo, uint64_t timestamp,
                             const int8_t* emg) {
   std::stringstream ss;
-  ss << "onAccelerometerData -";
+  ss << "onEmgData -";
   ss << PRINT_NAME_AND_VAR(myo);
   ss << PRINT_NAME_AND_VAR(timestamp);
-  ss << "emg: (";
-  ss << emg[0];
+  ss << " emg: (";
+  ss << int(emg[0]);
   for (std::size_t i = 1; i < 8; ++i) {
-    ss << ", " << emg[i];
+    ss << ", " << int(emg[i]);
   }
   ss << ")\n";
   out_ += ss.str();
