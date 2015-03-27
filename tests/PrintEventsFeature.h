@@ -97,6 +97,7 @@ class PrintEvents : public core::DeviceListenerWrapper {
   virtual void onRssi(myo::Myo* myo, uint64_t timestamp, int8_t rssi) override;
   virtual void onEmgData(myo::Myo* myo, uint64_t timestamp,
                          const int8_t* emg) override;
+  virtual void onPeriodic(myo::Myo* myo) override;
 
  private:
   std::string& out_;
@@ -264,5 +265,13 @@ void PrintEvents::onEmgData(myo::Myo* myo, uint64_t timestamp,
     ss << ", " << int(emg[i]);
   }
   ss << ")\n";
+  out_ += ss.str();
+}
+
+void PrintEvents::onPeriodic(myo::Myo* myo) {
+  std::stringstream ss;
+  ss << "onPeriodic -";
+  ss << PRINT_NAME_AND_VAR(myo);
+  ss << "\n";
   out_ += ss.str();
 }
