@@ -13,6 +13,7 @@
 
 #include "PrintEventsFeature.h"
 
+void testRootFeature(MyoSim::Hub& hub);
 void testDebounce(MyoSim::Hub& hub);
 void testExponentialMovingAverage(MyoSim::Hub& hub);
 void testMovingAverage(MyoSim::Hub& hub);
@@ -20,11 +21,73 @@ void testMovingAverage(MyoSim::Hub& hub);
 int main() {
   MyoSim::Hub hub("com.voidingwarranties.myo-intelligesture-tests");
 
+  testRootFeature(hub);
   testDebounce(hub);
   testExponentialMovingAverage(hub);
   testMovingAverage(hub);
 
   return 0;
+}
+
+void testRootFeature(MyoSim::Hub& hub) {
+  features::RootFeature root_feature;
+  std::string str;
+  PrintEvents print_events(root_feature, str);
+  hub.addListener(&root_feature);
+
+  uint64_t timestamp = 0;
+  MyoSim::EventLoopGroup elg;
+  elg.group.push_back(std::make_shared<MyoSim::onPairEvent>(
+      0, timestamp++, myo::FirmwareVersion{0, 1, 2, 3}));
+  elg.group.push_back(std::make_shared<MyoSim::onUnpairEvent>(
+      0, timestamp++));
+  elg.group.push_back(std::make_shared<MyoSim::onConnectEvent>(
+      0, timestamp++, myo::FirmwareVersion{0, 1, 2, 3}));
+  elg.group.push_back(std::make_shared<MyoSim::onDisconnectEvent>(
+      0, timestamp++));
+  elg.group.push_back(std::make_shared<MyoSim::onArmSyncEvent>(
+      0, timestamp++, myo::armLeft, myo::xDirectionTowardWrist));
+  elg.group.push_back(std::make_shared<MyoSim::onArmUnsyncEvent>(
+      0, timestamp++));
+  elg.group.push_back(std::make_shared<MyoSim::onUnlockEvent>(
+      0, timestamp++));
+  elg.group.push_back(std::make_shared<MyoSim::onLockEvent>(
+      0, timestamp++));
+  elg.group.push_back(std::make_shared<MyoSim::onPoseEvent>(
+      0, timestamp++, myo::Pose::rest));
+  elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
+      0, timestamp++, myo::Quaternion<float>(0.f, 1.f, 2.f, 3.f)));
+  elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
+      0, timestamp++, myo::Vector3<float>(0.f, 1.f, 2.f)));
+  elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
+      0, timestamp++, myo::Vector3<float>(0.f, 1.f, 2.f)));
+  elg.group.push_back(std::make_shared<MyoSim::onRssiEvent>(
+      0, timestamp++, 123));
+  std::array<int8_t, 8> emg_data{{0, 1, 2, 3, 4, 5, 6, 7}};
+  elg.group.push_back(std::make_shared<MyoSim::onEmgDataEvent>(
+      0, timestamp++, emg_data.data()));
+  MyoSim::EventSession event_session;
+  event_session.events.push_back(elg);
+
+  MyoSim::EventPlayer event_player(hub);
+  event_player.play(event_session);
+  hub.removeListener(&root_feature);
+
+  assert(str ==
+         "onPair - myo: 0x0 timestamp: 0 firmwareVersion: (0, 1, 2, 3)\n"
+         "onUnpair - myo: 0x0 timestamp: 1\n"
+         "onConnect - myo: 0x0 timestamp: 2 firmwareVersion: (0, 1, 2, 3)\n"
+         "onDisconnect - myo: 0x0 timestamp: 3\n"
+         "onArmSync - myo: 0x0 timestamp: 4 arm: armLeft xDirection: xDirectionTowardWrist\n"
+         "onArmUnsync - myo: 0x0 timestamp: 5\n"
+         "onUnlock - myo: 0x0 timestamp: 6\n"
+         "onLock - myo: 0x0 timestamp: 7\n"
+         "onPose - myo: 0x0 timestamp: 8 *pose: rest\n"
+         "onOrientationData - myo: 0x0 timestamp: 9 rotation: (0, 1, 2, 3)\n"
+         "onAccelerometerData - myo: 0x0 timestamp: 10 accel: (0, 1, 2)\n"
+         "onGyroscopeData - myo: 0x0 timestamp: 11 gyro: (0, 1, 2)\n"
+         "onRssi - myo: 0x0 timestamp: 12 rssi: 123\n"
+         "onEmgData - myo: 0x0 timestamp: 13 emg: (0, 1, 2, 3, 4, 5, 6, 7)\n");
 }
 
 void testDebounce(MyoSim::Hub& hub) {
