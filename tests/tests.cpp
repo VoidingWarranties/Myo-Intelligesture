@@ -1,5 +1,5 @@
 #include <myo/myo.hpp>
-#include <sstream>
+#include <string>
 
 #include "../src/core/DeviceListenerWrapper.h"
 #include "../src/features/RootFeature.h"
