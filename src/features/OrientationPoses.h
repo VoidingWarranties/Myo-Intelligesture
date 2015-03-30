@@ -59,6 +59,16 @@ std::string OrientationPoses::Pose::toString() const {
   }
 }
 
+bool operator==(const OrientationPoses::Pose& lhs,
+                OrientationPoses::Pose::Type rhs) {
+  return lhs == OrientationPoses::Pose(rhs);
+}
+
+bool operator!=(const OrientationPoses::Pose& lhs,
+                OrientationPoses::Pose::Type rhs) {
+  return lhs != OrientationPoses::Pose(rhs);
+}
+
 OrientationPoses::OrientationPoses(core::DeviceListenerWrapper& parent_feature,
                                    Orientation& orientation)
     : orientation_(orientation) {

@@ -63,6 +63,16 @@ std::string PoseGestures::Gesture::toString() const {
   }
 }
 
+bool operator==(const PoseGestures::Gesture& lhs,
+                PoseGestures::Gesture::Type rhs) {
+  return lhs == PoseGestures::Gesture(rhs);
+}
+
+bool operator!=(const PoseGestures::Gesture& lhs,
+                PoseGestures::Gesture::Type rhs) {
+  return lhs != PoseGestures::Gesture(rhs);
+}
+
 PoseGestures::PoseGestures(core::DeviceListenerWrapper& parent_feature,
                            int click_max_hold_min, int double_click_timeout)
     : click_max_hold_min_(click_max_hold_min),

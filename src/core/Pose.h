@@ -12,8 +12,8 @@ class Pose {
   Pose(const myo::Pose& pose);
   virtual ~Pose() {}
 
-  bool operator==(const Pose& pose);
-  bool operator!=(const Pose& pose);
+  bool operator==(const Pose& pose) const;
+  bool operator!=(const Pose& pose) const;
 
   virtual std::string toString() const;
 
@@ -51,11 +51,11 @@ Pose::Pose(const myo::Pose& pose) {
 
 // Use toString for comparisons so the operator can be used polymorphically.
 // Because of this toString MUST return a unique value.
-bool Pose::operator==(const Pose& pose) {
+bool Pose::operator==(const Pose& pose) const {
   return this->toString() == pose.toString();
 }
 
-bool Pose::operator!=(const Pose& pose) {
+bool Pose::operator!=(const Pose& pose) const {
   return this->toString() != pose.toString();
 }
 

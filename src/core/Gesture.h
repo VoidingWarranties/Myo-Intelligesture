@@ -13,8 +13,8 @@ class Gesture {
   Gesture(const std::shared_ptr<Pose>& pose, Type type = unknown);
   virtual ~Gesture() {}
 
-  bool operator==(const Gesture& gesture);
-  bool operator!=(const Gesture& gesture);
+  bool operator==(const Gesture& gesture) const;
+  bool operator!=(const Gesture& gesture) const;
 
   virtual std::string toString() const;
 
@@ -35,11 +35,11 @@ Gesture::Gesture(Type type)
 Gesture::Gesture(const std::shared_ptr<Pose>& pose, Type type)
     : type_(type), associated_pose_(pose) {}
 
-bool Gesture::operator==(const Gesture& gesture) {
+bool Gesture::operator==(const Gesture& gesture) const {
   return this->toString() == gesture.toString();
 }
 
-bool Gesture::operator!=(const Gesture& gesture) {
+bool Gesture::operator!=(const Gesture& gesture) const {
   return this->toString() != gesture.toString();
 }
 
