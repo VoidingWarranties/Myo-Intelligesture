@@ -126,6 +126,7 @@ void PoseGestures::onPeriodic(myo::Myo* myo) {
     last_gesture_.reset(new Gesture(last_gesture_->AssociatedPose(), Gesture::hold));
     core::DeviceListenerWrapper::onGesture(myo, 0, last_gesture_);
   }
+  core::DeviceListenerWrapper::onPeriodic(myo);
 }
 }
 }

@@ -20,12 +20,12 @@ class CorrectForOrientation : public core::DeviceListenerWrapper {
   explicit CorrectForOrientation(core::DeviceListenerWrapper& parent_feature,
                                  DataFlags flags);
 
-  void onOrientationData(myo::Myo* myo, uint64_t timestamp,
-                         const myo::Quaternion<float>& quat) override;
-  void onAccelerometerData(myo::Myo* myo, uint64_t timestamp,
-                           const myo::Vector3<float>& accel) override;
-  void onGyroscopeData(myo::Myo* myo, uint64_t timestamp,
-                       const myo::Vector3<float>& gyro) override;
+  virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
+                                 const myo::Quaternion<float>& quat) override;
+  virtual void onAccelerometerData(myo::Myo* myo, uint64_t timestamp,
+                                   const myo::Vector3<float>& accel) override;
+  virtual void onGyroscopeData(myo::Myo* myo, uint64_t timestamp,
+                               const myo::Vector3<float>& gyro) override;
 
  private:
   DataFlags flags_;
@@ -48,6 +48,7 @@ CorrectForOrientation::CorrectForOrientation(
 void CorrectForOrientation::onOrientationData(
     myo::Myo* myo, uint64_t timestamp, const myo::Quaternion<float>& quat) {
   last_quat_ = quat;
+  core::DeviceListenerWrapper::onOrientationData(myo, timestamp, quat);
 }
 
 void CorrectForOrientation::onAccelerometerData(

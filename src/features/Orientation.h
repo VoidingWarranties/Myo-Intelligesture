@@ -74,6 +74,7 @@ void Orientation::onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
     std::swap(arm_orientation_a, arm_orientation_b);
     std::swap(wrist_orientation_a, wrist_orientation_b);
   }
+  core::DeviceListenerWrapper::onArmSync(myo, timestamp, arm, x_direction);
 }
 
 void Orientation::calibrateOrientation() { mid_ = rotation_; }
