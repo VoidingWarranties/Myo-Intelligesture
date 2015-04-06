@@ -48,7 +48,7 @@ class FiniteImpulseResponse : public core::DeviceListenerWrapper {
       const myo::Vector3<float>& new_data,
       const boost::optional<myo::Vector3<float>>& old_data) = 0;
 
-  DataFlags flags_;
+  const DataFlags flags_;
   boost::circular_buffer<myo::Quaternion<float>> orientation_data_;
   boost::circular_buffer<myo::Vector3<float>> accelerometer_data_;
   boost::circular_buffer<myo::Vector3<float>> gyroscope_data_;

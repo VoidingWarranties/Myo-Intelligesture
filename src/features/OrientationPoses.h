@@ -27,7 +27,7 @@ class OrientationPoses : public core::DeviceListenerWrapper {
     virtual std::string toString() const override;
 
    private:
-    Type type_;
+    const Type type_;
   };
 
   OrientationPoses(core::DeviceListenerWrapper& parent_feature,

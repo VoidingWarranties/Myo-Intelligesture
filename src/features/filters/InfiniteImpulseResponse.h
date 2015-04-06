@@ -40,7 +40,7 @@ class InfiniteImpulseResponse : public core::DeviceListenerWrapper {
   void UpdateAccelerometerData(const myo::Vector3<float>& data);
   void UpdateGyroscopeData(const myo::Vector3<float>& data);
 
-  DataFlags flags_;
+  const DataFlags flags_;
   boost::optional<myo::Quaternion<float>> orientation_data_;
   boost::optional<myo::Vector3<float>> accelerometer_data_;
   boost::optional<myo::Vector3<float>> gyroscope_data_;

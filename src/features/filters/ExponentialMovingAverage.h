@@ -18,7 +18,7 @@ class ExponentialMovingAverage : public InfiniteImpulseResponse {
  private:
   virtual float Update(float new_value, float old_value) override;
 
-  float alpha_;
+  const float alpha_;
 };
 
 ExponentialMovingAverage::ExponentialMovingAverage(

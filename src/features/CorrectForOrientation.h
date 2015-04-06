@@ -28,7 +28,7 @@ class CorrectForOrientation : public core::DeviceListenerWrapper {
                                const myo::Vector3<float>& gyro) override;
 
  private:
-  DataFlags flags_;
+  const DataFlags flags_;
   myo::Quaternion<float> last_quat_;
 };
 

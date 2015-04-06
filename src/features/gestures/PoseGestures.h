@@ -37,7 +37,7 @@ class PoseGestures : public core::DeviceListenerWrapper {
   virtual void onPeriodic(myo::Myo* myo) override;
 
  private:
-  int click_max_hold_min_, double_click_timeout_;
+  const int click_max_hold_min_, double_click_timeout_;
   std::unordered_map<std::string, BasicTimer> gesture_timers_;
   std::shared_ptr<Gesture> last_gesture_;
 };

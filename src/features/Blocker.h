@@ -61,7 +61,7 @@ class Blocker : public core::DeviceListenerWrapper {
   virtual void onPeriodic(myo::Myo* myo) override;
 
  private:
-  EventFlags flags_;
+  const EventFlags flags_;
 };
 
 Blocker::EventFlags operator|(Blocker::EventFlags lhs,

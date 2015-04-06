@@ -23,10 +23,10 @@ class Gesture {
   std::string toDescriptiveString() const;
 
  protected:
-  std::shared_ptr<Pose> associated_pose_;
+  const std::shared_ptr<Pose> associated_pose_;
 
  private:
-  Type type_;
+  const Type type_;
 };
 
 Gesture::Gesture(Type type)
