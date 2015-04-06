@@ -7,6 +7,7 @@
 #pragma once
 
 #include <myo/myo.hpp>
+#include <map>
 
 #include "../../core/DeviceListenerWrapper.h"
 #include "../../core/Pose.h"
@@ -25,49 +26,52 @@ class Debounce : public core::DeviceListenerWrapper {
  private:
   void debounceLastPose(myo::Myo* myo);
 
-  int timeout_ms_;
-  std::shared_ptr<core::Pose> last_pose_, last_debounced_pose_;
-  BasicTimer last_pose_time_;
-  uint64_t last_pose_timestamp_;
+  const int timeout_ms_;
+  std::map<myo::Myo*, std::shared_ptr<core::Pose>> last_pose_, last_debounced_pose_;
+  std::map<myo::Myo*, BasicTimer> last_pose_time_;
+  std::map<myo::Myo*, uint64_t> last_pose_timestamp_;
 };
 
 Debounce::Debounce(core::DeviceListenerWrapper& parent_feature, int timeout_ms)
-    : timeout_ms_(timeout_ms),
-      last_pose_(new core::Pose(core::Pose::rest)),
-      last_debounced_pose_(last_pose_),
-      last_pose_timestamp_(0) {
+    : timeout_ms_(timeout_ms) {
   parent_feature.addChildFeature(this);
-  last_pose_time_.tick();
 }
 
 void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
                       const std::shared_ptr<core::Pose>& pose) {
-  if (timestamp - last_pose_timestamp_ > 1000 * timeout_ms_ &&
-      *last_pose_ != *last_debounced_pose_) {
+  if (last_pose_timestamp_.count(myo) > 0 &&
+      timestamp - last_pose_timestamp_[myo] > 1000 * timeout_ms_ &&
+      last_pose_.count(myo) > 0 &&
+      (last_debounced_pose_.count(myo) == 0 ||
+       *(last_pose_[myo]) != *(last_debounced_pose_[myo]))) {
     debounceLastPose(myo);
   }
-  last_pose_ = pose;
-  last_pose_time_.tick();
-  last_pose_timestamp_ = timestamp;
+  last_pose_[myo] = pose;
+  last_pose_time_[myo].tick();
+  last_pose_timestamp_[myo] = timestamp;
   // Don't debounce doubleTaps because of their uniqely short duration.
-  if (*last_pose_ == core::Pose::doubleTap) {
-    last_debounced_pose_ = last_pose_;
-    core::DeviceListenerWrapper::onPose(myo, 0, last_pose_);
+  if (*pose == core::Pose::doubleTap) {
+    last_debounced_pose_[myo] = pose;
+    core::DeviceListenerWrapper::onPose(myo, 0, pose);
   }
 }
 
 void Debounce::onPeriodic(myo::Myo* myo) {
-  if (last_pose_time_.millisecondsSinceTick() > timeout_ms_ &&
-      *last_pose_ != *last_debounced_pose_) {
+  if (last_pose_time_.count(myo) > 0 &&
+      last_pose_time_[myo].millisecondsSinceTick() > timeout_ms_ &&
+      last_pose_.count(myo) > 0 &&
+      (last_debounced_pose_.count(myo) == 0 ||
+       *(last_pose_[myo]) != *(last_debounced_pose_[myo]))) {
     debounceLastPose(myo);
   }
   core::DeviceListenerWrapper::onPeriodic(myo);
 }
 
 void Debounce::debounceLastPose(myo::Myo* myo) {
-  last_debounced_pose_ = last_pose_;
-  last_pose_time_.tick();
-  core::DeviceListenerWrapper::onPose(myo, last_pose_timestamp_, last_pose_);
+  last_debounced_pose_[myo] = last_pose_[myo];
+  last_pose_time_[myo].tick();
+  core::DeviceListenerWrapper::onPose(myo, last_pose_timestamp_[myo],
+                                      last_pose_[myo]);
 }
 }
 }
