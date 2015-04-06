@@ -8,9 +8,9 @@
 #pragma once
 
 #include <myo/myo.hpp>
+#include <map>
 
 #include "../../core/DeviceListenerWrapper.h"
-#include <boost/optional.hpp>
 
 namespace features {
 namespace filters {
@@ -36,14 +36,14 @@ class InfiniteImpulseResponse : public core::DeviceListenerWrapper {
 
  protected:
   virtual float Update(float new_value, float old_value) = 0;
-  void UpdateOrientationData(const myo::Quaternion<float>& data);
-  void UpdateAccelerometerData(const myo::Vector3<float>& data);
-  void UpdateGyroscopeData(const myo::Vector3<float>& data);
+  void UpdateOrientationData(myo::Myo* myo, const myo::Quaternion<float>& data);
+  void UpdateAccelerometerData(myo::Myo* myo, const myo::Vector3<float>& data);
+  void UpdateGyroscopeData(myo::Myo* myo, const myo::Vector3<float>& data);
 
   DataFlags flags_;
-  boost::optional<myo::Quaternion<float>> orientation_data_;
-  boost::optional<myo::Vector3<float>> accelerometer_data_;
-  boost::optional<myo::Vector3<float>> gyroscope_data_;
+  std::map<myo::Myo*, myo::Quaternion<float>> orientation_data_;
+  std::map<myo::Myo*, myo::Vector3<float>> accelerometer_data_;
+  std::map<myo::Myo*, myo::Vector3<float>> gyroscope_data_;
 };
 
 InfiniteImpulseResponse::DataFlags operator|(
@@ -55,19 +55,16 @@ InfiniteImpulseResponse::DataFlags operator|(
 
 InfiniteImpulseResponse::InfiniteImpulseResponse(
     core::DeviceListenerWrapper& parent_feature, DataFlags flags)
-    : flags_(flags),
-      orientation_data_(),
-      accelerometer_data_(),
-      gyroscope_data_() {
+    : flags_(flags) {
   parent_feature.addChildFeature(this);
 }
 
 void InfiniteImpulseResponse::onOrientationData(
     myo::Myo* myo, uint64_t timestamp, const myo::Quaternion<float>& rotation) {
   if (flags_ & OrientationData) {
-    UpdateOrientationData(rotation);
+    UpdateOrientationData(myo, rotation);
     core::DeviceListenerWrapper::onOrientationData(myo, timestamp,
-                                                   orientation_data_.get());
+                                                   orientation_data_[myo]);
   } else {
     core::DeviceListenerWrapper::onOrientationData(myo, timestamp, rotation);
   }
@@ -77,9 +74,9 @@ void InfiniteImpulseResponse::onAccelerometerData(
     myo::Myo* myo, uint64_t timestamp,
     const myo::Vector3<float>& acceleration) {
   if (flags_ & AccelerometerData) {
-    UpdateAccelerometerData(acceleration);
+    UpdateAccelerometerData(myo, acceleration);
     core::DeviceListenerWrapper::onAccelerometerData(myo, timestamp,
-                                                     accelerometer_data_.get());
+                                                     accelerometer_data_[myo]);
   } else {
     core::DeviceListenerWrapper::onAccelerometerData(myo, timestamp,
                                                      acceleration);
@@ -89,48 +86,48 @@ void InfiniteImpulseResponse::onAccelerometerData(
 void InfiniteImpulseResponse::onGyroscopeData(myo::Myo* myo, uint64_t timestamp,
                                               const myo::Vector3<float>& gyro) {
   if (flags_ & GyroscopeData) {
-    UpdateGyroscopeData(gyro);
+    UpdateGyroscopeData(myo, gyro);
     core::DeviceListenerWrapper::onGyroscopeData(myo, timestamp,
-                                                 gyroscope_data_.get());
+                                                 gyroscope_data_[myo]);
   } else {
     core::DeviceListenerWrapper::onGyroscopeData(myo, timestamp, gyro);
   }
 }
 
 void InfiniteImpulseResponse::UpdateOrientationData(
-    const myo::Quaternion<float>& data) {
-  if (!orientation_data_) {
-    orientation_data_ = data;
+    myo::Myo* myo, const myo::Quaternion<float>& data) {
+  if (orientation_data_.count(myo) == 0) {
+    orientation_data_[myo] = data;
   } else {
-    float x = Update(data.x(), orientation_data_.get().x());
-    float y = Update(data.y(), orientation_data_.get().y());
-    float z = Update(data.z(), orientation_data_.get().z());
-    float w = Update(data.w(), orientation_data_.get().w());
-    orientation_data_ = myo::Quaternion<float>(x, y, z, w);
+    float x = Update(data.x(), orientation_data_[myo].x());
+    float y = Update(data.y(), orientation_data_[myo].y());
+    float z = Update(data.z(), orientation_data_[myo].z());
+    float w = Update(data.w(), orientation_data_[myo].w());
+    orientation_data_[myo] = myo::Quaternion<float>(x, y, z, w);
   }
 }
 
 void InfiniteImpulseResponse::UpdateAccelerometerData(
-    const myo::Vector3<float>& data) {
-  if (!accelerometer_data_) {
-    accelerometer_data_ = data;
+    myo::Myo* myo, const myo::Vector3<float>& data) {
+  if (accelerometer_data_.count(myo) == 0) {
+    accelerometer_data_[myo] = data;
   } else {
-    float x = Update(data.x(), accelerometer_data_.get().x());
-    float y = Update(data.y(), accelerometer_data_.get().y());
-    float z = Update(data.z(), accelerometer_data_.get().z());
-    accelerometer_data_ = myo::Vector3<float>(x, y, z);
+    float x = Update(data.x(), accelerometer_data_[myo].x());
+    float y = Update(data.y(), accelerometer_data_[myo].y());
+    float z = Update(data.z(), accelerometer_data_[myo].z());
+    accelerometer_data_[myo] = myo::Vector3<float>(x, y, z);
   }
 }
 
 void InfiniteImpulseResponse::UpdateGyroscopeData(
-    const myo::Vector3<float>& data) {
-  if (!gyroscope_data_) {
-    gyroscope_data_ = data;
+    myo::Myo* myo, const myo::Vector3<float>& data) {
+  if (gyroscope_data_.count(myo) == 0) {
+    gyroscope_data_[myo] = data;
   } else {
-    float x = Update(data.x(), gyroscope_data_.get().x());
-    float y = Update(data.y(), gyroscope_data_.get().y());
-    float z = Update(data.z(), gyroscope_data_.get().z());
-    gyroscope_data_ = myo::Vector3<float>(x, y, z);
+    float x = Update(data.x(), gyroscope_data_[myo].x());
+    float y = Update(data.y(), gyroscope_data_[myo].y());
+    float z = Update(data.z(), gyroscope_data_[myo].z());
+    gyroscope_data_[myo] = myo::Vector3<float>(x, y, z);
   }
 }
 }
